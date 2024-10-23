@@ -1,0 +1,9 @@
+spring.application.name: inventory
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/inventory
+    username: pos_dev
+    password: pwd
+    hikari.initialization-fail-timeout: 60000
+  jpa.hibernate.ddl-auto: update
