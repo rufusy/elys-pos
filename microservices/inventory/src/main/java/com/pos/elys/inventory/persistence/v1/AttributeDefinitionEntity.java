@@ -29,7 +29,7 @@ public class AttributeDefinitionEntity extends BaseEntity {
             allocationSize = 1
     )
     @Column(name = "definition_id")
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String definitionName;

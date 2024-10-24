@@ -27,7 +27,7 @@ public class AttributeLinkEntity extends BaseEntity {
             allocationSize = 1
     )
     @Column(name = "link_id")
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "attribute_id", nullable = false)
@@ -44,4 +44,8 @@ public class AttributeLinkEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
+
+    @ManyToOne
+    @JoinColumn(name = "kit_id")
+    private KitEntity kit;
 }

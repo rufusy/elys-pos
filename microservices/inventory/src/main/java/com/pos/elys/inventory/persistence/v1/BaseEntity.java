@@ -23,17 +23,23 @@ public class BaseEntity {
     private Integer version;
 
     @Column(updatable = false, nullable = false)
+    private Long createdBy;
+
+    @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(insertable = false)
+    private Long updatedBy;
 
     @Column(insertable = false)
     private LocalDateTime updatedAt;
 
-    @Column(updatable = false, nullable = false)
-    private Integer createdBy;
+    @Column(insertable = false)
+    private Long deletedBy;
 
     @Column(insertable = false)
-    private Integer updatedBy;
+    private LocalDateTime deletedAt;
 
-    @Column(nullable = false)
+    @Column(insertable = false, nullable = false)
     private boolean deleted = false;
 }

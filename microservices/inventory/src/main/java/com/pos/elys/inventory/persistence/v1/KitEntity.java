@@ -15,38 +15,41 @@ import java.util.List;
 @Setter
 @SuperBuilder
 @Entity
-@Table(name = "categories")
-public class CategoryEntity extends BaseEntity {
+@Table(name = "kits")
+public class KitEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "categories_sequence"
+            generator = "kits_sequence"
     )
     @SequenceGenerator(
-            name = "categories_sequence",
-            sequenceName = "categories_sequence",
+            name = "kits_sequence",
+            sequenceName = "kits_sequence",
             allocationSize = 1
     )
-    @Column(name = "category_id")
+    @Column(name = "kit_id")
     private Long id;
 
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private CategoryEntity category;
+
+    @Column(nullable = false)
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "parent_category_id")
-    private CategoryEntity parentCategory;
+    @Column(unique = true)
+    private String kitNumber;
 
-    @OneToMany(mappedBy = "category")
-    private List<ItemEntity> items;
+    @Column(nullable = false)
+    private boolean isPriceOverride = false;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "kit")
     private List<AttributeLinkEntity> attributeLinks;
 
-    @OneToMany(mappedBy = "category")
-    private List<KitEntity> kits;
+    @OneToMany(mappedBy = "kit")
+    private List<KitItemEntity> items;
 }

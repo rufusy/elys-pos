@@ -53,9 +53,9 @@ public class ItemEntity extends BaseEntity {
 
     private String picFilename;
 
-    private Integer supplierId;
+    private Long supplierId;
 
-    private Integer taxCategoryId;
+    private Long taxCategoryId;
 
     @Column(length = 32, nullable = false)
     private String hsnCode;
@@ -71,4 +71,7 @@ public class ItemEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "item")
     private List<AttributeLinkEntity> attributeLinks;
+
+    @OneToMany(mappedBy = "item")
+    private List<KitItemEntity> kits;
 }

@@ -31,7 +31,7 @@ public class AttributeValueEntity extends BaseEntity {
             allocationSize = 1
     )
     @Column(name = "attribute_id")
-    private Integer id;
+    private Long id;
 
     private String attributeValue;
 
