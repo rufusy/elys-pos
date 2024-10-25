@@ -1,10 +1,7 @@
 package com.elys.pos.inventory.persistence.v1;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -44,6 +41,7 @@ public class KitEntity extends BaseEntity {
     @Column(unique = true)
     private String kitNumber;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isPriceOverride = false;
 

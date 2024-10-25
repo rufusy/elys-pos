@@ -3,10 +3,7 @@ package com.elys.pos.inventory.persistence.v1;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -40,6 +37,7 @@ public class BaseEntity {
     @Column(insertable = false)
     private LocalDateTime deletedAt;
 
+    @Builder.Default
     @Column(insertable = false, nullable = false)
     private boolean deleted = false;
 }

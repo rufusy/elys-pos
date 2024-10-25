@@ -40,8 +40,7 @@ public class AttributeDefinitionEntity extends BaseEntity {
     @Column(length = 32)
     private String definitionUnit;
 
-    @Column(nullable = false)
-    private short definitionFlags = 0;
+    private short definitionFlags;
 
     @ManyToOne
     @JoinColumn(name = "parent_definition_id")

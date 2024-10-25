@@ -1,10 +1,7 @@
 package com.elys.pos.inventory.persistence.v1;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -45,6 +42,7 @@ public class ItemEntity extends BaseEntity {
     @Column(unique = true)
     private String itemNumber;
 
+    @Builder.Default
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal reorderLevel = BigDecimal.ZERO;
 
@@ -57,12 +55,15 @@ public class ItemEntity extends BaseEntity {
     @Column(length = 32, nullable = false)
     private String hsnCode;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean itemType = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean stockType = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isSerialized = false;
 

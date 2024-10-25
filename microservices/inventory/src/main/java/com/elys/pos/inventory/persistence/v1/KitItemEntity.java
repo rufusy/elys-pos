@@ -1,10 +1,7 @@
 package com.elys.pos.inventory.persistence.v1;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -33,6 +30,7 @@ public class KitItemEntity extends BaseEntity {
     @Column(name = "kit_item_id")
     private Long id;
 
+    @Builder.Default
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal quantity = BigDecimal.ZERO;
 

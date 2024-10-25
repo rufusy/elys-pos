@@ -1,10 +1,7 @@
 package com.elys.pos.inventory.persistence.v1;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -45,14 +42,17 @@ public class ReceivingItemEntity extends BaseEntity {
 
     private String serialNumber;
 
+    @Builder.Default
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal receivingQuantity = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal quantityPurchased = BigDecimal.ZERO;
 
     private Long discountTypeId;
 
+    @Builder.Default
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal discount = BigDecimal.ZERO;
 
@@ -60,6 +60,7 @@ public class ReceivingItemEntity extends BaseEntity {
     @JoinColumn(name = "packaging_type_id", nullable = false)
     private PackagingTypeEntity packagingType;
 
+    @Builder.Default
     @Column(precision = 15, scale = 2)
     private BigDecimal packagingCapacity = BigDecimal.ZERO;
 

@@ -17,21 +17,40 @@ repositories {
 	mavenCentral()
 }
 
+jar {
+	enabled = false
+}
+
+ext {
+	mapstructVersion = "1.6.2"
+	lombokVerion = "1.18.34"
+	testContainersBOMVersion = "1.20.3"
+	hamcrestVersion = "3.0"
+	datafakerVersion = "2.4.0"
+}
+
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'net.datafaker:datafaker:2.4.0'
-
-	compileOnly 'org.projectlombok:lombok'
-
-	annotationProcessor 'org.projectlombok:lombok'
-
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	runtimeOnly 'org.postgresql:postgresql'
+	implementation "net.datafaker:datafaker:${datafakerVersion}"
+
+	compileOnly "org.projectlombok:lombok:${lombokVerion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVerion}"
+
+	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+	compileOnly "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
-
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	implementation platform("org.testcontainers:testcontainers-bom:${testContainersBOMVersion}")
+	testImplementation 'org.testcontainers:testcontainers'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:postgresql'
 }
 
 tasks.named('test') {
