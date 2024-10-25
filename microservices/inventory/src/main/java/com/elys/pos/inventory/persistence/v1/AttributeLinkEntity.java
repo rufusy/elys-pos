@@ -1,4 +1,4 @@
-package com.pos.elys.inventory.persistence.v1;
+package com.elys.pos.inventory.persistence.v1;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -48,4 +48,16 @@ public class AttributeLinkEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "kit_id")
     private KitEntity kit;
+
+    @ManyToOne
+    @JoinColumn(name = "receiving_id")
+    private ReceivingEntity receiving;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private LocationEntity location;
+
+    @ManyToOne
+    @JoinColumn(name = "batch_id")
+    private BatchEntity batch;
 }

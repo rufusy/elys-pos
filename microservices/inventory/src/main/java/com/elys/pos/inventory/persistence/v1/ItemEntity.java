@@ -1,4 +1,4 @@
-package com.pos.elys.inventory.persistence.v1;
+package com.elys.pos.inventory.persistence.v1;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -48,10 +48,7 @@ public class ItemEntity extends BaseEntity {
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal reorderLevel = BigDecimal.ZERO;
 
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal receivingQuantity = BigDecimal.ZERO;
-
-    private String picFilename;
+    private String imageFilename;
 
     private Long supplierId;
 
@@ -69,9 +66,16 @@ public class ItemEntity extends BaseEntity {
     @Column(nullable = false)
     private boolean isSerialized = false;
 
+    @OneToOne
+    @JoinColumn(name = "batch_id", nullable = false)
+    private BatchEntity batch;
+
     @OneToMany(mappedBy = "item")
     private List<AttributeLinkEntity> attributeLinks;
 
     @OneToMany(mappedBy = "item")
     private List<KitItemEntity> kits;
+
+    @OneToMany(mappedBy = "item")
+    private List<ReceivingItemEntity> receivings;
 }

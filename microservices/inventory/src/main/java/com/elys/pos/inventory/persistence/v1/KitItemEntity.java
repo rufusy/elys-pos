@@ -1,4 +1,4 @@
-package com.pos.elys.inventory.persistence.v1;
+package com.elys.pos.inventory.persistence.v1;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,8 +15,8 @@ import java.math.BigDecimal;
 @Setter
 @SuperBuilder
 @Entity
-@Table(name = "kit_items", indexes = {
-        @Index(name = "kits_items_unique", unique = true, columnList = "kit_id,item_id")
+@Table(name = "kits_items", indexes = {
+        @Index(name = "kits_items_batches_unique", unique = true, columnList = "kit_id,item_id,batch_id")
 })
 public class KitItemEntity extends BaseEntity {
 
@@ -43,4 +43,8 @@ public class KitItemEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "kit_id", nullable = false)
     private KitEntity kit;
+
+    @ManyToOne
+    @JoinColumn(name = "batch_id", nullable = false)
+    private BatchEntity batch;
 }
