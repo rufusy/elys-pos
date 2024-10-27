@@ -28,6 +28,10 @@ public class BatchEntity extends BaseEntity {
     @Column(unique = true, nullable = false, updatable = false)
     private String number;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", nullable = false)
+    private ItemEntity item;
+
     private LocalDate expiryDate;
 
     @OneToOne(mappedBy = "batch")

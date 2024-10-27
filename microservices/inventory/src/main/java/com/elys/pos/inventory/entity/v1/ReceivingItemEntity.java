@@ -62,6 +62,6 @@ public class ReceivingItemEntity extends BaseEntity {
     private BigDecimal packagingCapacity = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unit_of_measure_id", nullable = false)
+    @JoinColumn(name = "unit_of_measure_id")
     private UnitOfMeasureEntity unitOfMeasure;
 }

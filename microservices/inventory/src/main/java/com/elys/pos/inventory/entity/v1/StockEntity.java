@@ -32,7 +32,11 @@ public class StockEntity extends BaseEntity {
     private LocationEntity location;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "batch_id", nullable = false)
+    @JoinColumn(name = "item_id", nullable = false)
+    private ItemEntity item;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "batch_id")
     private BatchEntity batch;
 
     @ManyToOne(fetch = FetchType.LAZY)

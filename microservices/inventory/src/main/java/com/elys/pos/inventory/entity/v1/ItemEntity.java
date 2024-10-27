@@ -43,17 +43,16 @@ public class ItemEntity extends BaseEntity {
 
     @Column(unique = true)
     private String itemNumber;
-    
-    @Builder.Default
-    @NotNull(message = "Reorder level cannot be null")
-    @DecimalMin(value = "0.00", message = "Reorder level must be at least 0")
-    @Digits(integer = 13, fraction = 2, message = "Reorder level must have at most 15 total digits, with 2 decimal places")
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal reorderLevel = BigDecimal.ZERO;
 
     private String imageUrl;
 
     private UUID supplierId;
+
+    @NotNull(message = "Selling price cannot be null")
+    @DecimalMin(value = "0.00", message = "Selling price must be at least 0")
+    @Digits(integer = 13, fraction = 2, message = "Selling price must have at most 15 total digits, with 2 decimal places")
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal sellingPrice = BigDecimal.ZERO;
 
     private UUID taxCategoryId;
 
@@ -80,6 +79,11 @@ public class ItemEntity extends BaseEntity {
     @Builder.Default
     @Column(nullable = false)
     private boolean serialized = false;
+
+    @NotNull(message = "Serialized cannot be null")
+    @NotBlank(message = "Serialized cannot be empty")
+    @Column(nullable = false)
+    private boolean batchTracked;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<AttributeLinkEntity> attributeLinks = Collections.emptyList();
