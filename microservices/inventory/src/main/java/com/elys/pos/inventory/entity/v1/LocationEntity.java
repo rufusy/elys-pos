@@ -1,4 +1,4 @@
-package com.elys.pos.inventory.persistence.v1;
+package com.elys.pos.inventory.entity.v1;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,31 +18,24 @@ import java.util.List;
 @Entity
 @Table(name = "locations")
 public class LocationEntity extends BaseEntity {
+
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "locations_sequence"
-    )
-    @SequenceGenerator(
-            name = "locations_sequence",
-            sequenceName = "locations_sequence",
-            allocationSize = 1
-    )
-    @Column(name = "location_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @Column(length = 32, nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "location")
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<AttributeLinkEntity> attributeLinks;
 
-    @OneToMany(mappedBy = "location")
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<ReceivingEntity> receivings;
 
-    @OneToMany(mappedBy = "location")
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<LocationBatchEntity> batches;
 
-    @OneToMany(mappedBy = "location")
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<StockEntity> stock;
 }

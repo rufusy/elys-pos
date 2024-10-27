@@ -1,4 +1,4 @@
-package com.elys.pos.inventory.persistence.v1;
+package com.elys.pos.inventory.entity.v1;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,25 +22,17 @@ import java.util.List;
 public class AttributeValueEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "attribute_values_sequence"
-    )
-    @SequenceGenerator(
-            name = "attribute_values_sequence",
-            sequenceName = "attribute_values_sequence",
-            allocationSize = 1
-    )
-    @Column(name = "attribute_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
-    private String attributeValue;
+    private String value;
 
-    private LocalDate attributeDate;
+    private LocalDate date;
 
     @Column(precision = 7, scale = 3, columnDefinition = "decimal(7,3)")
-    private BigDecimal attributeDecimal;
+    private BigDecimal decimal;
 
-    @OneToMany(mappedBy = "attributeValue")
+    @OneToMany(mappedBy = "value", fetch = FetchType.LAZY)
     private List<AttributeLinkEntity> attributeLinks;
 }

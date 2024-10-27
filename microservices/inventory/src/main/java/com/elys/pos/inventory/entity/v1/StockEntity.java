@@ -1,10 +1,11 @@
-package com.elys.pos.inventory.persistence.v1;
+package com.elys.pos.inventory.entity.v1;
 
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,35 +19,27 @@ import java.math.BigDecimal;
 public class StockEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "stock_sequence"
-    )
-    @SequenceGenerator(
-            name = "stock_sequence",
-            sequenceName = "stock_sequence",
-            allocationSize = 1
-    )
-    @Column(name = "stock_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @Builder.Default
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal quantity = BigDecimal.ZERO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private LocationEntity location;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "batch_id", nullable = false)
     private BatchEntity batch;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "packaging_type_id", nullable = false)
     private PackagingTypeEntity packagingType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_of_measure_id", nullable = false)
     private UnitOfMeasureEntity unitOfMeasure;
 }
