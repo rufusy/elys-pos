@@ -1,4 +1,4 @@
-package com.elys.pos.inventory.persistence.v1;
+package com.elys.pos.inventory.entity.v1;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,35 +21,27 @@ import java.util.List;
 public class BatchEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "batches_sequence"
-    )
-    @SequenceGenerator(
-            name = "batches_sequence",
-            sequenceName = "batches_sequence",
-            allocationSize = 1
-    )
-    @Column(name = "batch_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @Column(unique = true, nullable = false, updatable = false)
-    private String batchNumber;
+    private String number;
 
     private LocalDate expiryDate;
 
     @OneToOne(mappedBy = "batch")
-    private ItemEntity item;
+    private ReceivingItemEntity receivedItem;
 
-    @OneToMany(mappedBy = "batch")
+    @OneToMany(mappedBy = "batch", fetch = FetchType.LAZY)
     private List<LocationBatchEntity> locations;
 
-    @OneToMany(mappedBy = "batch")
+    @OneToMany(mappedBy = "batch", fetch = FetchType.LAZY)
     private List<AttributeLinkEntity> attributeLinks;
 
-    @OneToMany(mappedBy = "batch")
+    @OneToMany(mappedBy = "batch", fetch = FetchType.LAZY)
     private List<KitItemEntity> kitItems;
 
-    @OneToMany(mappedBy = "batch")
+    @OneToMany(mappedBy = "batch", fetch = FetchType.LAZY)
     private List<StockEntity> stock;
 }

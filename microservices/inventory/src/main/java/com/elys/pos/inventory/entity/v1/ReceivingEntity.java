@@ -1,13 +1,11 @@
-package com.elys.pos.inventory.persistence.v1;
+package com.elys.pos.inventory.entity.v1;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,17 +17,9 @@ import java.util.List;
 public class ReceivingEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "receivings_sequence"
-    )
-    @SequenceGenerator(
-            name = "receivings_sequence",
-            sequenceName = "receivings_sequence",
-            allocationSize = 1
-    )
-    @Column(name = "receiving_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false, length = 32)
     private String reference;
@@ -39,13 +29,13 @@ public class ReceivingEntity extends BaseEntity {
 
     private Long supplierId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private LocationEntity location;
 
-    @OneToMany(mappedBy = "receiving")
+    @OneToMany(mappedBy = "receiving", fetch = FetchType.LAZY)
     private List<AttributeLinkEntity> attributeLinks;
 
-    @OneToMany(mappedBy = "receiving")
+    @OneToMany(mappedBy = "receiving", fetch = FetchType.LAZY)
     private List<ReceivingItemEntity> items;
 }

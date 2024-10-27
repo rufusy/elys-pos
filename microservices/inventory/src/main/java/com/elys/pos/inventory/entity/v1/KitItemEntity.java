@@ -1,13 +1,11 @@
-package com.elys.pos.inventory.persistence.v1;
+package com.elys.pos.inventory.entity.v1;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,30 +19,23 @@ import java.math.BigDecimal;
 public class KitItemEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "kits_items_sequence"
-    )
-    @SequenceGenerator(
-            name = "kits_items_sequence",
-            sequenceName = "kits_items_sequence",
-            allocationSize = 1
-    )
-    @Column(name = "kit_item_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
+    @Builder.Default
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal quantity = BigDecimal.ZERO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id", nullable = false)
     private ItemEntity item;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "kit_id", nullable = false)
     private KitEntity kit;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "batch_id", nullable = false)
     private BatchEntity batch;
 }

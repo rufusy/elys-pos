@@ -1,13 +1,11 @@
-package com.elys.pos.inventory.persistence.v1;
+package com.elys.pos.inventory.entity.v1;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,22 +17,14 @@ import java.util.List;
 public class KitEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "kits_sequence"
-    )
-    @SequenceGenerator(
-            name = "kits_sequence",
-            sequenceName = "kits_sequence",
-            allocationSize = 1
-    )
-    @Column(name = "kit_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false, unique = true)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
@@ -44,12 +34,13 @@ public class KitEntity extends BaseEntity {
     @Column(unique = true)
     private String kitNumber;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isPriceOverride = false;
 
-    @OneToMany(mappedBy = "kit")
+    @OneToMany(mappedBy = "kit", fetch = FetchType.LAZY)
     private List<AttributeLinkEntity> attributeLinks;
 
-    @OneToMany(mappedBy = "kit")
+    @OneToMany(mappedBy = "kit", fetch = FetchType.LAZY)
     private List<KitItemEntity> items;
 }

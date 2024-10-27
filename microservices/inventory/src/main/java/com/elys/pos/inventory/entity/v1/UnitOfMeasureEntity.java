@@ -1,4 +1,4 @@
-package com.elys.pos.inventory.persistence.v1;
+package com.elys.pos.inventory.entity.v1;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,17 +20,9 @@ import java.util.List;
 public class UnitOfMeasureEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "units_of_measure_sequence"
-    )
-    @SequenceGenerator(
-            name = "units_of_measure_sequence",
-            sequenceName = "units_of_measure_sequence",
-            allocationSize = 1
-    )
-    @Column(name = "unit_of_measure_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;
@@ -43,6 +36,6 @@ public class UnitOfMeasureEntity extends BaseEntity {
     @Column(length = 32)
     private String type;
 
-    @OneToMany(mappedBy = "unitOfMeasure")
+    @OneToMany(mappedBy = "unitOfMeasure", fetch = FetchType.LAZY)
     private List<ReceivingItemEntity> receivedItems;
 }
