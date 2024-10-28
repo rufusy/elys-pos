@@ -48,6 +48,7 @@ public class ItemEntity extends BaseEntity {
 
     private UUID supplierId;
 
+    @Builder.Default
     @NotNull(message = "Selling price cannot be null")
     @DecimalMin(value = "0.00", message = "Selling price must be at least 0")
     @Digits(integer = 13, fraction = 2, message = "Selling price must have at most 15 total digits, with 2 decimal places")
@@ -85,15 +86,19 @@ public class ItemEntity extends BaseEntity {
     @Column(nullable = false)
     private boolean batchTracked;
 
+    @Builder.Default
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<AttributeLinkEntity> attributeLinks = Collections.emptyList();
 
+    @Builder.Default
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<KitItemEntity> kits = Collections.emptyList();
 
+    @Builder.Default
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<ReceivingItemEntity> received = Collections.emptyList();
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "items_tags",

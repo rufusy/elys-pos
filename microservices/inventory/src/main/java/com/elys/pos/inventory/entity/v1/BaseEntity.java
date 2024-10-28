@@ -38,6 +38,6 @@ public class BaseEntity {
     private LocalDateTime deletedAt;
 
     @Builder.Default
-    @Column(insertable = false, nullable = false)
+    @Column(nullable = false)
     private boolean deleted = false;
 }
