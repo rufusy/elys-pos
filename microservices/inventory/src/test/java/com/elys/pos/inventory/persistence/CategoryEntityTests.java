@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class CategoryTests extends PostgresTestBase {
+public class CategoryEntityTests extends PostgresTestBase {
 
     @Autowired
     private CategoryRepository repository;
@@ -35,12 +35,8 @@ public class CategoryTests extends PostgresTestBase {
         repository.deleteAll();
         assertEquals(0, repository.count());
 
-        CategoryEntity entity = CategoryEntity.builder()
-                .name("n1")
-                .description("d1")
-                .createdBy(1L)
-                .createdAt(LocalDateTime.now())
-                .build();
+        CategoryEntity entity = CategoryEntity.builder().name("n1").description("d1").createdBy(1L)
+                .createdAt(LocalDateTime.now()).build();
         savedEntity = repository.save(entity);
 
         assertEquals(0, savedEntity.getVersion());
@@ -54,13 +50,8 @@ public class CategoryTests extends PostgresTestBase {
 
     @Test
     void create() {
-        CategoryEntity entity = CategoryEntity.builder()
-                .name("n2")
-                .description("d2")
-                .parentCategory(savedEntity)
-                .createdBy(1L)
-                .createdAt(LocalDateTime.now())
-                .build();
+        CategoryEntity entity = CategoryEntity.builder().name("n2").description("d2").parentCategory(savedEntity).createdBy(1L)
+                .createdAt(LocalDateTime.now()).build();
         repository.save(entity);
 
         CategoryEntity foundEntity = repository.findById(entity.getId()).orElse(null);
@@ -104,13 +95,8 @@ public class CategoryTests extends PostgresTestBase {
 
     @Test
     void findAllActive() {
-        CategoryEntity deletedCategory = CategoryEntity.builder()
-                .name("Deleted Category")
-                .description("A deleted category")
-                .createdBy(1L)
-                .createdAt(LocalDateTime.now())
-                .deleted(true)
-                .build();
+        CategoryEntity deletedCategory = CategoryEntity.builder().name("Deleted Category").description("A deleted category")
+                .createdBy(1L).createdAt(LocalDateTime.now()).deleted(true).build();
         repository.save(deletedCategory);
 
         // db should have 2 categories total
@@ -168,10 +154,9 @@ public class CategoryTests extends PostgresTestBase {
 
     @Test
     void duplicateError() {
-        CategoryEntity entity = CategoryEntity.builder()
-                .name(savedEntity.getName()).description(savedEntity.getDescription())
-                .createdBy(savedEntity.getCreatedBy()).createdAt(savedEntity.getCreatedAt())
-                .build();
+        CategoryEntity entity = CategoryEntity.builder().name(savedEntity.getName())
+                .description(savedEntity.getDescription()).createdBy(savedEntity.getCreatedBy())
+                .createdAt(savedEntity.getCreatedAt()).build();
 
         assertThrows(DataIntegrityViolationException.class, () -> repository.save(entity));
     }
