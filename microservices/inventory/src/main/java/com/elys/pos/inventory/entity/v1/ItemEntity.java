@@ -31,8 +31,7 @@ public class ItemEntity extends BaseEntity {
     private String name;
 
     @NotNull(message = "Category cannot be null")
-    @NotBlank(message = "Category cannot be empty")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
@@ -50,7 +49,7 @@ public class ItemEntity extends BaseEntity {
 
     @Builder.Default
     @NotNull(message = "Selling price cannot be null")
-    @DecimalMin(value = "0.00", message = "Selling price must be at least 0")
+    @DecimalMin(value = "0.00", inclusive = true, message = "Selling price must be at least 0")
     @Digits(integer = 13, fraction = 2, message = "Selling price must have at most 15 total digits, with 2 decimal places")
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal sellingPrice = BigDecimal.ZERO;
@@ -64,25 +63,21 @@ public class ItemEntity extends BaseEntity {
     private String hsnCode;
 
     @NotNull(message = "Item type cannot be null")
-    @NotBlank(message = "Item type cannot be empty")
     @ManyToOne
     @JoinColumn(name = "item_type_id", nullable = false)
     private ItemTypeEntity itemType;
 
     @NotNull(message = "Stock type cannot be null")
-    @NotBlank(message = "Stock type cannot be empty")
     @ManyToOne
     @JoinColumn(name = "stock_type_id", nullable = false)
     private StockTypeEntity stockType;
 
     @NotNull(message = "Serialized cannot be null")
-    @NotBlank(message = "Serialized cannot be empty")
     @Builder.Default
     @Column(nullable = false)
     private boolean serialized = false;
 
     @NotNull(message = "Serialized cannot be null")
-    @NotBlank(message = "Serialized cannot be empty")
     @Column(nullable = false)
     private boolean batchTracked;
 
@@ -99,7 +94,7 @@ public class ItemEntity extends BaseEntity {
     private List<ReceivingItemEntity> received = Collections.emptyList();
 
     @Builder.Default
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "items_tags",
             joinColumns = @JoinColumn(name = "item_id"),
