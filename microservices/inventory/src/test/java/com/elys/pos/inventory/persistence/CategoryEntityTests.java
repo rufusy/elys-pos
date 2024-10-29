@@ -2,14 +2,19 @@ package com.elys.pos.inventory.persistence;
 
 import com.elys.pos.inventory.entity.v1.CategoryEntity;
 import com.elys.pos.inventory.repository.v1.CategoryRepository;
+import com.elys.pos.inventory.repository.v1.CategorySpecification;
 import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@Import(CategorySpecification.class) // Ensure CategorySpecification is loaded
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class CategoryEntityTests extends PostgresTestBase {
@@ -28,7 +34,13 @@ public class CategoryEntityTests extends PostgresTestBase {
     @Autowired
     private CategoryRepository repository;
 
+    @Autowired
+    private CategorySpecification categorySpecification;
+
     private CategoryEntity savedEntity;
+    private CategoryEntity category1;
+    private CategoryEntity category2;
+    private CategoryEntity category3;
 
     @BeforeEach
     void setupDb() {
@@ -46,6 +58,21 @@ public class CategoryEntityTests extends PostgresTestBase {
         assertNull(savedEntity.getDeletedAt());
         assertFalse(savedEntity.isDeleted());
         assertEqualsCategory(entity, savedEntity);
+
+        category1 = repository.save(
+                CategoryEntity.builder().name("Electronics").description("d1").createdBy(1L)
+                    .createdAt(LocalDateTime.now()).build()
+        );
+
+        category2 = repository.save(
+                CategoryEntity.builder().name("Phones and Tablets").description("d1")
+                    .parentCategory(category1).createdBy(1L).createdAt(LocalDateTime.now()).build()
+        );
+
+        category3 = repository.save(
+                CategoryEntity.builder().name("Clothing").description("d1").createdBy(1L)
+                    .createdAt(LocalDateTime.now()).build()
+        );
     }
 
     @Test
@@ -164,5 +191,15 @@ public class CategoryEntityTests extends PostgresTestBase {
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getCreatedBy(), actual.getCreatedBy());
+    }
+
+    @Test
+    void shouldFilterByName() {
+        Specification<CategoryEntity> specification = categorySpecification.getCategoriesByCriteria(category1.getName(), null, null);
+
+        Page<CategoryEntity> result = repository.findAll(specification, PageRequest.of(0, 10));
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals(category1.getName(), result.getContent().get(0).getName());
     }
 }
