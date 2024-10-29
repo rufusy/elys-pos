@@ -49,7 +49,7 @@ public class CategoryEntityTests extends PostgresTestBase {
     }
 
     @Test
-    void create() {
+    void whenSavingCategoryEntityWithNoValidationErrors_thenSuccess() {
         CategoryEntity entity = CategoryEntity.builder().name("n2").description("d2").parentCategory(savedEntity).createdBy(1L)
                 .createdAt(LocalDateTime.now()).build();
         repository.save(entity);
@@ -62,7 +62,7 @@ public class CategoryEntityTests extends PostgresTestBase {
     }
 
     @Test
-    void update() {
+    void whenUpdatingCategoryEntityWithNoValidationErrors_thenSuccess() {
         savedEntity.setName("n1 updated");
         savedEntity.setDescription("d1 updated");
         savedEntity.setUpdatedBy(2L);
@@ -71,7 +71,6 @@ public class CategoryEntityTests extends PostgresTestBase {
 
         CategoryEntity foundEntity = repository.findById(savedEntity.getId()).get();
 
-        // verify the new props
         assertEquals(1, foundEntity.getVersion());
         assertEquals("n1 updated", foundEntity.getName());
         assertEquals("d1 updated", foundEntity.getDescription());
@@ -80,7 +79,7 @@ public class CategoryEntityTests extends PostgresTestBase {
     }
 
     @Test
-    void softDelete() {
+    void whenSoftDeletingAnItemEntity_thenItIsOnlyMarkedAsDeletedButRetained() {
         repository.softDelete(savedEntity.getId(), 2L, LocalDateTime.now());
 
         // verify that category was not removed from db
@@ -94,7 +93,7 @@ public class CategoryEntityTests extends PostgresTestBase {
     }
 
     @Test
-    void findAllActive() {
+    void whenActiveCategoriesAreRetrieved_thenReturnCategoriesNotDeleted() {
         CategoryEntity deletedCategory = CategoryEntity.builder().name("Deleted Category").description("A deleted category")
                 .createdBy(1L).createdAt(LocalDateTime.now()).deleted(true).build();
         repository.save(deletedCategory);
@@ -110,28 +109,27 @@ public class CategoryEntityTests extends PostgresTestBase {
     }
 
     @Test
-    void lazyFetching() {
+    void whenAccessingLazyRelationsOutOfSession_thenThrowsException() {
         // Fetch the category without accessing items
         CategoryEntity foundEntity = repository.findById(savedEntity.getId()).orElse(null);
         assertNotNull(foundEntity);
 
         // Try accessing items or kits after the session has been closed,
         // This should throw an exception
-        assertThrows(LazyInitializationException.class, () -> {
-            assertThat(foundEntity.getItems(), hasSize(0));
-            assertThat(foundEntity.getKits(), hasSize(0));
-        });
+        assertThrows(LazyInitializationException.class, () -> assertThat(foundEntity.getItems(), hasSize(0)));
+
+        assertThrows(LazyInitializationException.class, () -> assertThat(foundEntity.getKits(), hasSize(0)));
     }
 
     @Test
-    void eagerFetching() {
+    void whenAccessingEagerRelations_thenSuccess() {
         CategoryEntity foundEntity = repository.findById(savedEntity.getId()).orElse(null);
         assertNotNull(foundEntity);
         assertThat(foundEntity.getAttributeLinks(), hasSize(0));
     }
 
     @Test
-    void optimisticLockeError() {
+    void whenUpdatingCategoryEntityWithLowerVersion_thenThrowsException() {
         // Store the saved entity in two separate entity objects
         CategoryEntity entity1 = repository.findById(savedEntity.getId()).get();
         CategoryEntity entity2 = repository.findById(savedEntity.getId()).get();
@@ -153,7 +151,7 @@ public class CategoryEntityTests extends PostgresTestBase {
     }
 
     @Test
-    void duplicateError() {
+    void whenSavingCategoryEntityWithDuplicateFields_thenThrowsException() {
         CategoryEntity entity = CategoryEntity.builder().name(savedEntity.getName())
                 .description(savedEntity.getDescription()).createdBy(savedEntity.getCreatedBy())
                 .createdAt(savedEntity.getCreatedAt()).build();

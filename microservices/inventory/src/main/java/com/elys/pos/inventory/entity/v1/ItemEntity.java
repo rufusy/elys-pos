@@ -31,7 +31,7 @@ public class ItemEntity extends BaseEntity {
     private String name;
 
     @NotNull(message = "Category cannot be null")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
 
@@ -82,7 +82,7 @@ public class ItemEntity extends BaseEntity {
     private boolean batchTracked;
 
     @Builder.Default
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
     private List<AttributeLinkEntity> attributeLinks = Collections.emptyList();
 
     @Builder.Default
