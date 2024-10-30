@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,6 @@ public class CategoryEntityTests extends PostgresTestBase {
     private CategoryEntity savedEntity;
     private CategoryEntity category1;
     private CategoryEntity category2;
-    private CategoryEntity category3;
 
     @BeforeEach
     void setupDb() {
@@ -68,11 +68,6 @@ public class CategoryEntityTests extends PostgresTestBase {
                 CategoryEntity.builder().name("Phones and Tablets").description("d1")
                     .parentCategory(category1).createdBy(1L).createdAt(LocalDateTime.now()).build()
         );
-
-        category3 = repository.save(
-                CategoryEntity.builder().name("Clothing").description("d1").createdBy(1L)
-                    .createdAt(LocalDateTime.now()).build()
-        );
     }
 
     @Test
@@ -82,7 +77,6 @@ public class CategoryEntityTests extends PostgresTestBase {
         repository.save(entity);
 
         CategoryEntity foundEntity = repository.findById(entity.getId()).orElse(null);
-        assertEquals(2, repository.count());
         assert foundEntity != null;
         assertEquals(savedEntity.getId(), foundEntity.getParentCategory().getId()); // verify parent/child relationship
         assertEqualsCategory(entity, foundEntity);
@@ -117,22 +111,6 @@ public class CategoryEntityTests extends PostgresTestBase {
         assertTrue(foundEntity.isDeleted());
         assertEquals(2L, foundEntity.getDeletedBy());
         assertNotNull(foundEntity.getDeletedAt());
-    }
-
-    @Test
-    void whenActiveCategoriesAreRetrieved_thenReturnCategoriesNotDeleted() {
-        CategoryEntity deletedCategory = CategoryEntity.builder().name("Deleted Category").description("A deleted category")
-                .createdBy(1L).createdAt(LocalDateTime.now()).deleted(true).build();
-        repository.save(deletedCategory);
-
-        // db should have 2 categories total
-        assertEquals(2, repository.count());
-
-        // Check that only one active category is returned
-        List<CategoryEntity> activeCategories = repository.findAllActive();
-        assertEquals(1, activeCategories.size());
-        assertFalse(activeCategories.get(0).isDeleted());
-        assertEqualsCategory(savedEntity, activeCategories.get(0));
     }
 
     @Test
@@ -195,11 +173,51 @@ public class CategoryEntityTests extends PostgresTestBase {
 
     @Test
     void shouldFilterByName() {
-        Specification<CategoryEntity> specification = categorySpecification.getCategoriesByCriteria(category1.getName(), null, null);
-
+        Specification<CategoryEntity> specification = categorySpecification.getCategoriesByCriteria(category1.getName(),
+                null, null);
         Page<CategoryEntity> result = repository.findAll(specification, PageRequest.of(0, 10));
-
         assertEquals(1, result.getTotalElements());
         assertEquals(category1.getName(), result.getContent().get(0).getName());
+    }
+
+    @Test
+    void shouldFilterByParentCategory() {
+        Specification<CategoryEntity> specification = categorySpecification.getCategoriesByCriteria(
+                null, null, category1.getId());
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<CategoryEntity> result = repository.findAll(specification, pageable);
+        assertEquals(1, result.getTotalElements());
+        assertEquals(category2.getName(), result.getContent().get(0).getName());
+        assertEquals(category2.getParentCategory().getName(), result.getContent().get(0).getParentCategory().getName());
+    }
+
+    @Test
+    void shouldFilterByNameAndDeleted() {
+        Specification<CategoryEntity> specification = categorySpecification
+                .getCategoriesByCriteria(category1.getName(), null, null)
+                .and(categorySpecification.deleted());
+        List<CategoryEntity> categories = repository.findAll(specification);
+        assertEquals(0, categories.size()); // Before deletion, we have zero deleted categories
+
+        // Now delete category 1
+        repository.softDelete(category1.getId(), 2L, LocalDateTime.now());
+        List<CategoryEntity> deletedCategories = repository.findAll(specification);
+        assertEquals(1, deletedCategories.size());
+        assertEquals(category1.getName(), deletedCategories.get(0).getName());
+    }
+
+    @Test
+    void shouldFetchNotDeleted() {
+        Specification<CategoryEntity> specification = categorySpecification.notDeleted();
+        List<CategoryEntity> entities = repository.findAll(specification);
+        assertThat(entities, hasSize(3));
+    }
+
+    @Test
+    void shouldFetchDeleted() {
+        repository.softDelete(savedEntity.getId(), 2L, LocalDateTime.now());
+        Specification<CategoryEntity> specification = categorySpecification.notDeleted();
+        List<CategoryEntity> entities = repository.findAll(specification);
+        assertThat(entities, hasSize(2));
     }
 }

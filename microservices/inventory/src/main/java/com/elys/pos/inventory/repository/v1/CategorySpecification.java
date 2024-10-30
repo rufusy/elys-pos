@@ -11,6 +11,14 @@ import java.util.UUID;
 @Component
 public class CategorySpecification {
 
+    public Specification<CategoryEntity> notDeleted() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("deleted"), false);
+    }
+
+    public Specification<CategoryEntity> deleted() {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("deleted"), true);
+    }
+
     public Specification<CategoryEntity> getCategoriesByCriteria(String name, LocalDate date, UUID parentCategoryId) {
         return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
@@ -20,7 +28,7 @@ public class CategorySpecification {
                         criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
             }
 
-            if(date != null) {
+            if (date != null) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"), date));
             }
 
