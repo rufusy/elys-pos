@@ -1,17 +1,16 @@
 package com.elys.pos.inventory.filter.v1;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-public class ItemFilterOptions {
+@SuperBuilder
+final public class ItemFilterOptions extends FilterOptions {
     private String name;
     private String categoryName;
     private String itemNumber;
@@ -24,6 +23,4 @@ public class ItemFilterOptions {
     private String stockTypeName;
     private String serialized;
     private String batchTracked;
-    private LocalDate createdAtLowerBound;
-    private LocalDate createdAtUpperBound;
 }
