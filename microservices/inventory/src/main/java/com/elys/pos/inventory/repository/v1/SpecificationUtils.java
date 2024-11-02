@@ -4,6 +4,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class SpecificationUtils {
@@ -24,45 +25,40 @@ public class SpecificationUtils {
         }
     }
 
-    public static <T> Specification<T> uuidFieldEquals(String field, String value) {
-        return (root, query, criteriaBuilder) -> (value != null && !value.isEmpty() && isValidUUID(value))
-                ? criteriaBuilder.equal(root.get(field), UUID.fromString(value))
+    public static <T> Specification<T> uuidFieldEquals(String field, UUID value) {
+        return (root, query, criteriaBuilder) -> (value != null)
+                ? criteriaBuilder.equal(root.get(field), value)
                 : criteriaBuilder.conjunction();
     }
 
-    private static boolean isValidUUID(String value) {
-        try {
-            UUID.fromString(value);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
+//    private static boolean isValidUUID(String value) {
+//        try {
+//            UUID.fromString(value);
+//            return true;
+//        } catch (IllegalArgumentException e) {
+//            return false;
+//        }
+//    }
 
-    public static <T> Specification<T> dateFieldEquals(String field, LocalDate date) {
-        return (root, query, criteriaBuilder) -> date != null
-                ? criteriaBuilder.equal(root.get(field), date)
-                : criteriaBuilder.conjunction();
-    }
+    public static <T> Specification<T> dateFieldBetween(String field, LocalDate dateLowerBound, LocalDate dateUpperBound) {
+//        return (root, query, criteriaBuilder) -> {
+//            if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+//                LocalDateTime lowerBoundDateTime = LocalDate.parse(startDate).atStartOfDay();
+//                LocalDateTime higherBoundDateTime = LocalDate.parse(endDate).plusDays(1).atStartOfDay().minusNanos(1);
+//                return criteriaBuilder.between(root.get(field), lowerBoundDateTime, higherBoundDateTime);
+//            } else {
+//                return criteriaBuilder.conjunction();
+//            }
+//        };
 
-    public static <T> Specification<T> dateFieldLessThan(String field, LocalDate date) {
-        return (root, query, criteriaBuilder) -> date != null
-                ? criteriaBuilder.lessThan(root.get(field), date)
-                : criteriaBuilder.conjunction();
-    }
-
-    public static <T> Specification<T> dateFieldGreaterThan(String field, LocalDate date) {
-        return (root, query, criteriaBuilder) -> date != null
-                ? criteriaBuilder.greaterThan(root.get(field), date)
-                : criteriaBuilder.conjunction();
-    }
-
-    public static <T> Specification<T> dateFieldBetween(String field, LocalDate lowerDate, LocalDate higherDate) {
         return (root, query, criteriaBuilder) -> {
-            if (lowerDate != null && higherDate != null) {
-                return criteriaBuilder.between(root.get(field), lowerDate, higherDate);
+            if (dateLowerBound != null && dateUpperBound != null) {
+                LocalDateTime dateTimeLowerBound = dateLowerBound.atStartOfDay();
+                LocalDateTime dateTimeUpperBound = dateUpperBound.plusDays(1).atStartOfDay().minusNanos(1);
+                return criteriaBuilder.between(root.get(field), dateTimeLowerBound, dateTimeUpperBound);
+            } else {
+                return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.conjunction();
         };
     }
 
@@ -96,11 +92,11 @@ public class SpecificationUtils {
                 : criteriaBuilder.conjunction();
     }
 
-    public static <T> Specification<T> numberFieldBetween(String field, Number lowerNumber, Number higherNumber) {
-        BigDecimal value1 = toBigDecimal(lowerNumber);
-        BigDecimal value2 = toBigDecimal(higherNumber);
-        return (root, query, criteriaBuilder) -> (value1 != null && value2 != null)
-                ? criteriaBuilder.between(root.get(field), value1, value2)
+    public static <T> Specification<T> numberFieldBetween(String field, Number numberLowerBound, Number numberUpperBound) {
+        BigDecimal num1 = toBigDecimal(numberLowerBound);
+        BigDecimal num2 = toBigDecimal(numberUpperBound);
+        return (root, query, criteriaBuilder) -> (num1 != null && num2 != null)
+                ? criteriaBuilder.between(root.get(field), num1, num2)
                 : criteriaBuilder.conjunction();
     }
 }
