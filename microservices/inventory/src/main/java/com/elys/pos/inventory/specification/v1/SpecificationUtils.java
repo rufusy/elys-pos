@@ -1,4 +1,4 @@
-package com.elys.pos.inventory.repository.v1;
+package com.elys.pos.inventory.specification.v1;
 
 import org.springframework.data.jpa.domain.Specification;
 

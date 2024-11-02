@@ -6,6 +6,7 @@ import com.elys.pos.inventory.entity.v1.ItemTypeEntity;
 import com.elys.pos.inventory.entity.v1.StockTypeEntity;
 import com.elys.pos.inventory.filter.v1.ItemFilterOptions;
 import com.elys.pos.inventory.repository.v1.*;
+import com.elys.pos.inventory.specification.v1.ItemSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

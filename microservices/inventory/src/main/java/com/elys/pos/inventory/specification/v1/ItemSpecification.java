@@ -1,4 +1,4 @@
-package com.elys.pos.inventory.repository.v1;
+package com.elys.pos.inventory.specification.v1;
 
 import com.elys.pos.inventory.entity.v1.CategoryEntity;
 import com.elys.pos.inventory.entity.v1.ItemEntity;

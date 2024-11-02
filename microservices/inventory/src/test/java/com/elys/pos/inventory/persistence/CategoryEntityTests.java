@@ -2,7 +2,7 @@ package com.elys.pos.inventory.persistence;
 
 import com.elys.pos.inventory.entity.v1.CategoryEntity;
 import com.elys.pos.inventory.repository.v1.CategoryRepository;
-import com.elys.pos.inventory.repository.v1.CategorySpecification;
+import com.elys.pos.inventory.specification.v1.CategorySpecification;
 import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
