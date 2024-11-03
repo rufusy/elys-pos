@@ -72,6 +72,9 @@ public class ItemSpecification {
                             filterOptions.getUpdatedAtLowerBound(), filterOptions.getUpdatedAtUpperBound()))
                     .and(SpecificationUtils.dateFieldBetween("deletedAt",
                             filterOptions.getDeletedAtLowerBound(), filterOptions.getDeletedAtUpperBound()))
+                    .and(SpecificationUtils.uuidFieldEquals("createdBy", filterOptions.getCreatedBy()))
+                    .and(SpecificationUtils.uuidFieldEquals("updatedBy", filterOptions.getUpdatedBy()))
+                    .and(SpecificationUtils.uuidFieldEquals("deletedBy", filterOptions.getDeletedBy()))
                     .and(categoryNameEquals(filterOptions.getCategoryName()))
                     .and(stockTypeNameEquals(filterOptions.getStockTypeName()))
                     .and(itemTypeNameEquals(filterOptions.getItemTypeName()));

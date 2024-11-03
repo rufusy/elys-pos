@@ -5,19 +5,20 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Getter
 @Setter
 @SuperBuilder
 abstract public class FilterOptions {
-    private String createdBy;
+    private UUID createdBy;
     private LocalDate createdAtLowerBound;
     private LocalDate createdAtUpperBound;
-    private String updatedBy;
+    private UUID updatedBy;
     private LocalDate updatedAtLowerBound;
     private LocalDate updatedAtUpperBound;
     private String deleted;
-    private String deletedBy;
+    private UUID deletedBy;
     private LocalDate deletedAtLowerBound;
     private LocalDate deletedAtUpperBound;
 }

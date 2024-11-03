@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,19 +21,19 @@ public class BaseEntity {
     private Integer version;
 
     @Column(updatable = false, nullable = false)
-    private Long createdBy;
+    private UUID createdBy;
 
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
     @Column(insertable = false)
-    private Long updatedBy;
+    private UUID updatedBy;
 
     @Column(insertable = false)
     private LocalDateTime updatedAt;
 
     @Column(insertable = false)
-    private Long deletedBy;
+    private UUID deletedBy;
 
     @Column(insertable = false)
     private LocalDateTime deletedAt;

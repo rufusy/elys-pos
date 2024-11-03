@@ -5,7 +5,10 @@ import com.elys.pos.inventory.entity.v1.ItemEntity;
 import com.elys.pos.inventory.entity.v1.ItemTypeEntity;
 import com.elys.pos.inventory.entity.v1.StockTypeEntity;
 import com.elys.pos.inventory.filter.v1.ItemFilterOptions;
-import com.elys.pos.inventory.repository.v1.*;
+import com.elys.pos.inventory.repository.v1.CategoryRepository;
+import com.elys.pos.inventory.repository.v1.ItemRepository;
+import com.elys.pos.inventory.repository.v1.ItemTypeRepository;
+import com.elys.pos.inventory.repository.v1.StockTypeRepository;
 import com.elys.pos.inventory.specification.v1.ItemSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,6 +54,7 @@ public class ItemEntityFiltersTests extends PostgresTestBase {
 
     @BeforeEach
     void setupDb() {
+        UUID user1Id = UUID.randomUUID();
 
         itemRepository.deleteAll();
         assertEquals(0, itemRepository.count());
@@ -63,27 +68,27 @@ public class ItemEntityFiltersTests extends PostgresTestBase {
         stockTypeRepository.deleteAll();
         assertEquals(0, stockTypeRepository.count());
 
-        category1 = categoryRepository.save(CategoryEntity.builder().name("cat1").description("d1").createdBy(1L).createdAt(LocalDateTime.now()).build());
-        category2 = categoryRepository.save(CategoryEntity.builder().name("cat2").description("d1").createdBy(1L).createdAt(LocalDateTime.now()).build());
+        category1 = categoryRepository.save(CategoryEntity.builder().name("cat1").description("d1").createdBy(user1Id).createdAt(LocalDateTime.now()).build());
+        category2 = categoryRepository.save(CategoryEntity.builder().name("cat2").description("d1").createdBy(user1Id).createdAt(LocalDateTime.now()).build());
         assertEquals(2, categoryRepository.count());
 
-        itemType1 = itemTypeRepository.save(ItemTypeEntity.builder().name("Standard").createdAt(LocalDateTime.now()).createdBy(1L).build());
-        itemType2 = itemTypeRepository.save(ItemTypeEntity.builder().name("Kit").createdAt(LocalDateTime.now()).createdBy(1L).build());
+        itemType1 = itemTypeRepository.save(ItemTypeEntity.builder().name("Standard").createdAt(LocalDateTime.now()).createdBy(user1Id).build());
+        itemType2 = itemTypeRepository.save(ItemTypeEntity.builder().name("Kit").createdAt(LocalDateTime.now()).createdBy(user1Id).build());
         assertEquals(2, itemTypeRepository.count());
 
-        stockType1 = stockTypeRepository.save(StockTypeEntity.builder().name("Stocked").createdAt(LocalDateTime.now()).createdBy(1L).build());
-        stockType2 = stockTypeRepository.save(StockTypeEntity.builder().name("Non Stocked").createdAt(LocalDateTime.now()).createdBy(1L).build());
+        stockType1 = stockTypeRepository.save(StockTypeEntity.builder().name("Stocked").createdAt(LocalDateTime.now()).createdBy(user1Id).build());
+        stockType2 = stockTypeRepository.save(StockTypeEntity.builder().name("Non Stocked").createdAt(LocalDateTime.now()).createdBy(user1Id).build());
         assertEquals(2, stockTypeRepository.count());
 
         item1 = itemRepository.save(ItemEntity.builder().name("item1").category(category1).description("d1")
                 .sellingPrice(new BigDecimal("10.00")).hsnCode("96031000").itemNumber("123456").itemType(itemType1)
-                .stockType(stockType1).serialized(false).batchTracked(false).createdAt(LocalDateTime.now()).createdBy(1L)
-                .imageUrl("image_url_1").build());
+                .stockType(stockType1).serialized(false).batchTracked(false).createdAt(LocalDateTime.now()).createdBy(UUID.randomUUID())
+                .imageUrl("image_url_1").supplierId(UUID.randomUUID()).taxCategoryId(UUID.randomUUID()).build());
 
         item2 = itemRepository.save(ItemEntity.builder().name("item2").category(category2).description("d1")
                 .sellingPrice(new BigDecimal("1000.00")).hsnCode("68101990").itemNumber("654321").itemType(itemType2)
-                .stockType(stockType2).serialized(true).batchTracked(true).createdAt(LocalDateTime.now()).createdBy(1L)
-                .imageUrl("image_url_2").build());
+                .stockType(stockType2).serialized(true).batchTracked(true).createdAt(LocalDateTime.now()).createdBy(UUID.randomUUID())
+                .imageUrl("image_url_2").supplierId(UUID.randomUUID()).taxCategoryId(UUID.randomUUID()).build());
 
         assertEquals(2, itemRepository.count());
     }
@@ -102,6 +107,44 @@ public class ItemEntityFiltersTests extends PostgresTestBase {
     void givenNoMatchingName_whenFilterByNameContains_thenItemsAreNotFiltered() {
         assertEquals(2, itemRepository.count());
         ItemFilterOptions filterOptions = ItemFilterOptions.builder().name("no matching name").build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(0, itemList.size());
+    }
+
+    @Test
+    void givenMatchingSupplierId_whenFilterBySupplierIdEquals_thenItemsAreFiltered() {
+        assertEquals(2, itemRepository.count());
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().supplierId(item1.getSupplierId()).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(1, itemList.size());
+        assertEquals(item1.getName(), itemList.get(0).getName());
+    }
+
+    @Test
+    void givenNoMatchingSupplierId_whenFilterBySupplierIdEquals_thenItemsAreNotFiltered() {
+        assertEquals(2, itemRepository.count());
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().supplierId(UUID.randomUUID()).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(0, itemList.size());
+    }
+
+    @Test
+    void givenMatchingTaxCategoryId_whenFilterByTaxCategoryIdEquals_thenItemsAreFiltered() {
+        assertEquals(2, itemRepository.count());
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().taxCategoryId(item1.getTaxCategoryId()).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(1, itemList.size());
+        assertEquals(item1.getName(), itemList.get(0).getName());
+    }
+
+    @Test
+    void givenNoMatchingTaxCategoryId_whenFilterByTaxCategoryIdEquals_thenItemsAreNotFiltered() {
+        assertEquals(2, itemRepository.count());
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().taxCategoryId(UUID.randomUUID()).build();
         Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
         List<ItemEntity> itemList = itemRepository.findAll(specification);
         assertEquals(0, itemList.size());
@@ -206,28 +249,6 @@ public class ItemEntityFiltersTests extends PostgresTestBase {
     }
 
     @Test
-    void givenMatchingToAndFromCreatedAtDates_whenFilterByCreatedAtBetween_thenItemsAreFiltered() {
-        LocalDate todayDate = LocalDate.now();
-        LocalDate tomorrowDate = LocalDate.now().plusDays(1);
-        ItemFilterOptions filterOptions = ItemFilterOptions.builder().createdAtLowerBound(todayDate)
-                .createdAtUpperBound(tomorrowDate).build();
-        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
-        List<ItemEntity> itemList = itemRepository.findAll(specification);
-        assertEquals(2, itemList.size());
-    }
-
-    @Test
-    void givenNoMatchingToAndFromCreatedAtDates_whenFilterByCreatedAtBetween_thenItemsAreNotFiltered() {
-        // Yesterday from start of day (yyyy-mm-ddT00:00) to end of day (yyyy-mm-ddT23:59:59.999999999)
-        LocalDate yesterdayDate = LocalDate.now().minusDays(1);
-        ItemFilterOptions filterOptions = ItemFilterOptions.builder().createdAtLowerBound(yesterdayDate)
-                .createdAtUpperBound(yesterdayDate).build();
-        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
-        List<ItemEntity> itemList = itemRepository.findAll(specification);
-        assertEquals(0, itemList.size());
-    }
-
-    @Test
     void givenMatchingToAndFromSellingPrices_whenFilterBySellingPriceBetween_thenItemsAreFiltered() {
         ItemFilterOptions filterOptions = ItemFilterOptions.builder().sellingPriceLowerBound(new BigDecimal("1.00"))
                 .sellingPriceUpperBound(new BigDecimal("100.00")).build();
@@ -258,17 +279,6 @@ public class ItemEntityFiltersTests extends PostgresTestBase {
     }
 
     @Test
-    void givenBatchTrackedFlagFalse_whenFilterByBatchTrackedEquals_thenItemsAreFiltered() {
-        assertEquals(2, itemRepository.count());
-        ItemFilterOptions filterOptions = ItemFilterOptions.builder().batchTracked("isNotBatchTracked").build();
-        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
-        List<ItemEntity> itemList = itemRepository.findAll(specification);
-        assertEquals(1, itemList.size());
-        assertEquals(item1.getName(), itemList.get(0).getName());
-        assertFalse(itemList.get(0).isBatchTracked());
-    }
-
-    @Test
     void givenSerializedFlagTrue_whenFilterBySerializedEquals_thenItemsAreFiltered() {
         assertEquals(2, itemRepository.count());
         ItemFilterOptions filterOptions = ItemFilterOptions.builder().serialized("isSerialized").build();
@@ -280,6 +290,17 @@ public class ItemEntityFiltersTests extends PostgresTestBase {
     }
 
     @Test
+    void givenBatchTrackedFlagFalse_whenFilterByBatchTrackedEquals_thenItemsAreFiltered() {
+        assertEquals(2, itemRepository.count());
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().batchTracked("isNotBatchTracked").build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(1, itemList.size());
+        assertEquals(item1.getName(), itemList.get(0).getName());
+        assertFalse(itemList.get(0).isBatchTracked());
+    }
+
+    @Test
     void givenBatchTrackedFlagTrue_whenFilterByBatchTrackedEquals_thenItemsAreFiltered() {
         assertEquals(2, itemRepository.count());
         ItemFilterOptions filterOptions = ItemFilterOptions.builder().batchTracked("isBatchTracked").build();
@@ -288,6 +309,80 @@ public class ItemEntityFiltersTests extends PostgresTestBase {
         assertEquals(1, itemList.size());
         assertEquals(item2.getName(), itemList.get(0).getName());
         assertTrue(itemList.get(0).isBatchTracked());
+    }
+
+    @Test
+    void givenMatchingCreatedById_whenFilterByCreatedByIdEquals_thenItemsAreFiltered() {
+        assertEquals(2, itemRepository.count());
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().createdBy(item1.getCreatedBy()).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(1, itemList.size());
+        assertEquals(item1.getName(), itemList.get(0).getName());
+    }
+
+    @Test
+    void givenNoMatchingCreatedById_whenFilterByCreatedByIdEquals_thenItemsAreNotFiltered() {
+        assertEquals(2, itemRepository.count());
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().createdBy(UUID.randomUUID()).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(0, itemList.size());
+    }
+
+    @Test
+    void givenMatchingToAndFromCreatedAtDates_whenFilterByCreatedAtBetween_thenItemsAreFiltered() {
+        LocalDate todayDate = LocalDate.now();
+        LocalDate tomorrowDate = LocalDate.now().plusDays(1);
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().createdAtLowerBound(todayDate)
+                .createdAtUpperBound(tomorrowDate).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(2, itemList.size());
+    }
+
+    @Test
+    void givenNoMatchingToAndFromCreatedAtDates_whenFilterByCreatedAtBetween_thenItemsAreNotFiltered() {
+        // Yesterday from start of day (yyyy-mm-ddT00:00) to end of day (yyyy-mm-ddT23:59:59.999999999)
+        LocalDate yesterdayDate = LocalDate.now().minusDays(1);
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().createdAtLowerBound(yesterdayDate)
+                .createdAtUpperBound(yesterdayDate).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(0, itemList.size());
+    }
+
+    @Test
+    @Rollback
+    void givenMatchingUpdatedById_whenFilterByUpdatedByIdEquals_thenItemsAreFiltered() {
+        assertEquals(2, itemRepository.count());
+
+        ItemEntity foundItem = itemRepository.findById(item1.getId()).orElse(null);
+        assertNotNull(foundItem);
+        foundItem.setUpdatedBy(UUID.randomUUID());
+        itemRepository.save(foundItem);
+
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().updatedBy(foundItem.getUpdatedBy()).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(1, itemList.size());
+        assertEquals(item1.getName(), itemList.get(0).getName());
+    }
+
+    @Test
+    @Rollback
+    void givenNoMatchingUpdatedById_whenFilterByUpdatedByIdEquals_thenItemsAreNotFiltered() {
+        assertEquals(2, itemRepository.count());
+
+        ItemEntity foundItem = itemRepository.findById(item1.getId()).orElse(null);
+        assertNotNull(foundItem);
+        foundItem.setUpdatedBy(UUID.randomUUID());
+        itemRepository.save(foundItem);
+
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().updatedBy(UUID.randomUUID()).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(0, itemList.size());
     }
 
     @Test
@@ -324,6 +419,39 @@ public class ItemEntityFiltersTests extends PostgresTestBase {
         LocalDate yesterdayDate = LocalDate.now().minusDays(1);
         ItemFilterOptions filterOptions = ItemFilterOptions.builder().updatedAtLowerBound(yesterdayDate)
                 .updatedAtUpperBound(yesterdayDate).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(0, itemList.size());
+    }
+
+    @Test
+    @Rollback
+    void givenMatchingDeletedById_whenFilterByDeletedByIdEquals_thenItemsAreFiltered() {
+        assertEquals(2, itemRepository.count());
+
+        ItemEntity foundItem = itemRepository.findById(item1.getId()).orElse(null);
+        assertNotNull(foundItem);
+        foundItem.setDeletedBy(UUID.randomUUID());
+        itemRepository.save(foundItem);
+
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().deletedBy(foundItem.getDeletedBy()).build();
+        Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
+        List<ItemEntity> itemList = itemRepository.findAll(specification);
+        assertEquals(1, itemList.size());
+        assertEquals(item1.getName(), itemList.get(0).getName());
+    }
+
+    @Test
+    @Rollback
+    void givenNoMatchingDeletedById_whenFilterByDeletedByIdEquals_thenItemsAreNotFiltered() {
+        assertEquals(2, itemRepository.count());
+
+        ItemEntity foundItem = itemRepository.findById(item1.getId()).orElse(null);
+        assertNotNull(foundItem);
+        foundItem.setDeletedBy(UUID.randomUUID());
+        itemRepository.save(foundItem);
+
+        ItemFilterOptions filterOptions = ItemFilterOptions.builder().deletedBy(UUID.randomUUID()).build();
         Specification<ItemEntity> specification = itemSpecification.getItemsByCriteria(filterOptions);
         List<ItemEntity> itemList = itemRepository.findAll(specification);
         assertEquals(0, itemList.size());

@@ -31,15 +31,6 @@ public class SpecificationUtils {
                 : criteriaBuilder.conjunction();
     }
 
-//    private static boolean isValidUUID(String value) {
-//        try {
-//            UUID.fromString(value);
-//            return true;
-//        } catch (IllegalArgumentException e) {
-//            return false;
-//        }
-//    }
-
     public static <T> Specification<T> dateFieldBetween(String field, LocalDate dateLowerBound, LocalDate dateUpperBound) {
 //        return (root, query, criteriaBuilder) -> {
 //            if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
