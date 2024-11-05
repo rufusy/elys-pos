@@ -6,8 +6,15 @@ import com.elys.pos.inventory.entity.v1.ItemTypeEntity;
 import com.elys.pos.inventory.entity.v1.StockTypeEntity;
 import com.elys.pos.inventory.filter.v1.ItemFilterOptions;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class ItemSpecification {
@@ -43,21 +50,7 @@ public class ItemSpecification {
     }
 
     public Specification<ItemEntity> getItemsByCriteria(ItemFilterOptions filterOptions) {
-
         return (root, query, criteriaBuilder) -> {
-
-            Join<ItemEntity, CategoryEntity> category = root.join("category");
-            Join<ItemEntity, ItemTypeEntity> itemType = root.join("itemType");
-            Join<ItemEntity, StockTypeEntity> stockType = root.join("stockType");
-
-            if (query != null) {
-                query.multiselect(root.get("id"), root.get("name"), root.get("createdAt"), root.get("description"),
-                        root.get("itemNumber"), root.get("imageUrl"), root.get("supplierId"), root.get("sellingPrice"),
-                        root.get("taxCategoryId"), root.get("hsnCode"), root.get("serialized"), root.get("batchTracked"),
-                        category.get("name"), itemType.get("name"), stockType.get("name")
-                );
-            }
-
             Specification<ItemEntity> combinedSpec = Specification
                     .where(SpecificationUtils.<ItemEntity>stringFieldContains("name", filterOptions.getName()))
                     .and(SpecificationUtils.stringFieldContains("itemNumber", filterOptions.getItemNumber()))
@@ -98,6 +91,46 @@ public class ItemSpecification {
             }
 
             return combinedSpec.toPredicate(root, query, criteriaBuilder);
+        };
+    }
+
+    public Specification<ItemEntity> getItemsByCriteriaWithSorting(Specification<ItemEntity> baseSpec, Sort sort) {
+        return (root, query, criteriaBuilder) -> {
+            // Apply the base specification conditions
+            Predicate predicate = baseSpec.toPredicate(root, query, criteriaBuilder);
+
+            // Apply sorting directly on the query
+            if (sort != null && sort.isSorted()) {
+                List<Order> orders = new ArrayList<>();
+                sort.forEach(order -> {
+                    String property = order.getProperty();
+
+                    // Handle nested properties like category.name
+                    if (property.contains(".")) {
+                        String[] parts = property.split("\\.");
+                        Path<?> path = root;
+                        for (String part : parts) {
+                            path = path.get(part);
+                        }
+                        if (order.isAscending()) {
+                            orders.add(criteriaBuilder.asc(path));
+                        } else {
+                            orders.add(criteriaBuilder.desc(path));
+                        }
+                    } else {
+                        // Handle non-nested properties
+                        if (order.isAscending()) {
+                            orders.add(criteriaBuilder.asc(root.get(property)));
+                        } else {
+                            orders.add(criteriaBuilder.desc(root.get(property)));
+                        }
+                    }
+                });
+
+               if(query != null) query.orderBy(orders);
+            }
+
+            return predicate;
         };
     }
 }

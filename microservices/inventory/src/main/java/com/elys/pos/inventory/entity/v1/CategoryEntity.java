@@ -1,5 +1,6 @@
 package com.elys.pos.inventory.entity.v1;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -41,6 +42,7 @@ public class CategoryEntity extends BaseEntity {
     private CategoryEntity parentCategory;
 
     @Builder.Default
+    @JsonBackReference
     @OneToMany(mappedBy = "category")
     private List<ItemEntity> items = Collections.emptyList();
 
@@ -49,6 +51,7 @@ public class CategoryEntity extends BaseEntity {
     private List<AttributeLinkEntity> attributeLinks = Collections.emptyList();
 
     @Builder.Default
+    @JsonBackReference
     @OneToMany(mappedBy = "category")
     private List<KitEntity> kits = Collections.emptyList();
 }

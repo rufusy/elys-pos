@@ -1,5 +1,6 @@
 package com.elys.pos.inventory.entity.v1;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,5 +34,6 @@ public class StockTypeEntity extends BaseEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "stockType", fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<ItemEntity> items = Collections.emptyList();
 }

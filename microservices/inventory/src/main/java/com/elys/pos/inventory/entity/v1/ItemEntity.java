@@ -1,5 +1,7 @@
 package com.elys.pos.inventory.entity.v1;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -33,6 +35,7 @@ public class ItemEntity extends BaseEntity {
     @NotNull(message = "Category cannot be null")
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonManagedReference
     private CategoryEntity category;
 
     @NotNull(message = "Description cannot be null")
@@ -65,11 +68,13 @@ public class ItemEntity extends BaseEntity {
     @NotNull(message = "Item type cannot be null")
     @ManyToOne
     @JoinColumn(name = "item_type_id", nullable = false)
+    @JsonManagedReference
     private ItemTypeEntity itemType;
 
     @NotNull(message = "Stock type cannot be null")
     @ManyToOne
     @JoinColumn(name = "stock_type_id", nullable = false)
+    @JsonManagedReference
     private StockTypeEntity stockType;
 
     @NotNull(message = "Serialized cannot be null")
@@ -87,12 +92,15 @@ public class ItemEntity extends BaseEntity {
 
     @Builder.Default
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<KitItemEntity> kits = Collections.emptyList();
 
     @Builder.Default
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<ReceivingItemEntity> received = Collections.emptyList();
 
+    @JsonBackReference
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -101,4 +109,16 @@ public class ItemEntity extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<TagEntity> tags = Collections.emptyList();
+
+    public String getCategoryName() {
+        return category != null ? category.getName() : null;
+    }
+
+    public String getItemTypeName() {
+        return itemType != null ? itemType.getName() : null;
+    }
+
+    public String getStockTypeName() {
+        return stockType != null ? stockType.getName() : null;
+    }
 }
