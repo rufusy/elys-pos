@@ -2,7 +2,6 @@ package com.elys.pos.inventory.controller.v1;
 
 import com.elys.pos.inventory.entity.v1.ItemEntity;
 import com.elys.pos.inventory.filter.v1.ItemFilterOptions;
-import com.elys.pos.inventory.projection.v1.ItemProjection;
 import com.elys.pos.inventory.repository.v1.ItemRepository;
 import com.elys.pos.inventory.specification.v1.ItemSpecification;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,17 +37,17 @@ public class ItemController {
     @GetMapping(
             value = "/items",
             produces = "application/json")
-    public ResponseEntity<Page<ItemProjection>> index(
+    public ResponseEntity<Page<ItemEntity>> index(
             @RequestParam(required = false, defaultValue = "") String param,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "") String sort) {
+            @RequestParam(required = false, defaultValue = "") String sort,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
+    ) {
 
         log.debug("Received param: {}", param);
 
         if (param != null && !param.isEmpty()) {
             try {
-                // Create a new instance from the JSON string
                 filterOptions = objectMapper.readValue(param, ItemFilterOptions.class);
                 log.debug("Parsed ItemFilterOptions: {}", filterOptions.toString());
             } catch (JsonProcessingException e) {
@@ -84,21 +82,8 @@ public class ItemController {
 
         Pageable pageable = PageRequest.of(page, size, sorting);
         Specification<ItemEntity> baseSpecification = itemSpecification.getItemsByCriteria(filterOptions);
-        Specification<ItemEntity> specificationWithSorting = itemSpecification.getItemsByCriteriaWithSorting(baseSpecification, sorting);
-        Page<ItemProjection> items = itemRepository.findItemsWithProjection(specificationWithSorting, pageable);
 
-        return ResponseEntity.status(OK).body(items);
+        return ResponseEntity.status(OK).body(itemRepository.findAll(baseSpecification, pageable));
     }
-
-//    @GetMapping(
-//            value = "/items",
-//            consumes = "application/json",
-//            produces = "application/json")
-//    public ResponseEntity<String> getItemsee(@RequestBody ItemFilterOptions criteria) {
-//        log.debug("Parsed ItemFilterOptions: {}", criteria);
-//        String result = "Parsed ItemFilterOptions: " + criteria.toString();
-//        return ResponseEntity.ok(result);
-//    }
-
 }
 
