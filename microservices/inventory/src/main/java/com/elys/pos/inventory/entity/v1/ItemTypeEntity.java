@@ -1,13 +1,11 @@
 package com.elys.pos.inventory.entity.v1;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Collections;
@@ -34,6 +32,8 @@ public class ItemTypeEntity extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @Builder.Default
     @OneToMany(mappedBy = "itemType", fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<ItemEntity> items = Collections.emptyList();
 }

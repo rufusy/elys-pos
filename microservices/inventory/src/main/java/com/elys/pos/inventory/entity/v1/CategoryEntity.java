@@ -1,13 +1,11 @@
 package com.elys.pos.inventory.entity.v1;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Collections;
@@ -43,12 +41,17 @@ public class CategoryEntity extends BaseEntity {
     @JoinColumn(name = "parent_category_id")
     private CategoryEntity parentCategory;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @Builder.Default
+    @JsonBackReference
+    @OneToMany(mappedBy = "category")
     private List<ItemEntity> items = Collections.emptyList();
 
-    @OneToMany(mappedBy = "category")
+    @Builder.Default
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
     private List<AttributeLinkEntity> attributeLinks = Collections.emptyList();
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @Builder.Default
+    @JsonBackReference
+    @OneToMany(mappedBy = "category")
     private List<KitEntity> kits = Collections.emptyList();
 }

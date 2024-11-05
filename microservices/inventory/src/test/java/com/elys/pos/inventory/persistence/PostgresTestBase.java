@@ -1,4 +1,4 @@
-package com.elys.pos.inventory;
+package com.elys.pos.inventory.persistence;
 
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;

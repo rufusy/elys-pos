@@ -7,13 +7,14 @@ spring:
     password: password1234
     hikari.initialization-fail-timeout: 60000
   jpa:
-    hibernate.ddl-auto: update
+    hibernate.ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate.format_sql: false
 
 logging:
   level:
-    com.pos.elys: DEBUG
+    com.elys.pos: debug
+    root: info
 #    org.hibernate.SQL: DEBUG
 #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

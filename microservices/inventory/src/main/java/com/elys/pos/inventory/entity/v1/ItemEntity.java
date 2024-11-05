@@ -1,5 +1,7 @@
 package com.elys.pos.inventory.entity.v1;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -31,9 +33,9 @@ public class ItemEntity extends BaseEntity {
     private String name;
 
     @NotNull(message = "Category cannot be null")
-    @NotBlank(message = "Category cannot be empty")
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonManagedReference
     private CategoryEntity category;
 
     @NotNull(message = "Description cannot be null")
@@ -48,8 +50,9 @@ public class ItemEntity extends BaseEntity {
 
     private UUID supplierId;
 
+    @Builder.Default
     @NotNull(message = "Selling price cannot be null")
-    @DecimalMin(value = "0.00", message = "Selling price must be at least 0")
+    @DecimalMin(value = "0.00", inclusive = true, message = "Selling price must be at least 0")
     @Digits(integer = 13, fraction = 2, message = "Selling price must have at most 15 total digits, with 2 decimal places")
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal sellingPrice = BigDecimal.ZERO;
@@ -63,42 +66,59 @@ public class ItemEntity extends BaseEntity {
     private String hsnCode;
 
     @NotNull(message = "Item type cannot be null")
-    @NotBlank(message = "Item type cannot be empty")
     @ManyToOne
     @JoinColumn(name = "item_type_id", nullable = false)
+    @JsonManagedReference
     private ItemTypeEntity itemType;
 
     @NotNull(message = "Stock type cannot be null")
-    @NotBlank(message = "Stock type cannot be empty")
     @ManyToOne
     @JoinColumn(name = "stock_type_id", nullable = false)
+    @JsonManagedReference
     private StockTypeEntity stockType;
 
     @NotNull(message = "Serialized cannot be null")
-    @NotBlank(message = "Serialized cannot be empty")
     @Builder.Default
     @Column(nullable = false)
     private boolean serialized = false;
 
     @NotNull(message = "Serialized cannot be null")
-    @NotBlank(message = "Serialized cannot be empty")
     @Column(nullable = false)
     private boolean batchTracked;
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @Builder.Default
+    @OneToMany(mappedBy = "item", fetch = FetchType.EAGER)
     private List<AttributeLinkEntity> attributeLinks = Collections.emptyList();
 
+    @Builder.Default
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<KitItemEntity> kits = Collections.emptyList();
 
+    @Builder.Default
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<ReceivingItemEntity> received = Collections.emptyList();
 
-    @ManyToMany
+    @JsonBackReference
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "items_tags",
             joinColumns = @JoinColumn(name = "item_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<TagEntity> tags = Collections.emptyList();
+
+    public String getCategoryName() {
+        return category != null ? category.getName() : null;
+    }
+
+    public String getItemTypeName() {
+        return itemType != null ? itemType.getName() : null;
+    }
+
+    public String getStockTypeName() {
+        return stockType != null ? stockType.getName() : null;
+    }
 }
