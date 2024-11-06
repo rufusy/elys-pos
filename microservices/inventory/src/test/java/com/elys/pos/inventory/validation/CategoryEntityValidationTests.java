@@ -1,6 +1,6 @@
 package com.elys.pos.inventory.validation;
 
-import com.elys.pos.inventory.entity.v1.CategoryEntity;
+import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

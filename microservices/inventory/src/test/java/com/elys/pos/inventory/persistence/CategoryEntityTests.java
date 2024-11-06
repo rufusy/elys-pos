@@ -1,30 +1,17 @@
 package com.elys.pos.inventory.persistence;
 
-import com.elys.pos.inventory.entity.v1.CategoryEntity;
-import com.elys.pos.inventory.repository.v1.CategoryRepository;
-import com.elys.pos.inventory.specification.v1.CategorySpecification;
-import org.hibernate.LazyInitializationException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.elys.pos.inventory.v1.entity.CategoryEntity;
+import com.elys.pos.inventory.v1.repository.CategoryRepository;
+import com.elys.pos.inventory.v1.specification.CategorySpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Import(CategorySpecification.class) // Ensure CategorySpecification is loaded

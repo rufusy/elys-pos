@@ -1,32 +1,21 @@
 package com.elys.pos.inventory.persistence;
 
-import com.elys.pos.inventory.entity.v1.CategoryEntity;
-import com.elys.pos.inventory.entity.v1.ItemEntity;
-import com.elys.pos.inventory.entity.v1.ItemTypeEntity;
-import com.elys.pos.inventory.entity.v1.StockTypeEntity;
-import com.elys.pos.inventory.repository.v1.CategoryRepository;
-import com.elys.pos.inventory.repository.v1.ItemRepository;
-import com.elys.pos.inventory.repository.v1.ItemTypeRepository;
-import com.elys.pos.inventory.repository.v1.StockTypeRepository;
-import org.hibernate.LazyInitializationException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.elys.pos.inventory.v1.entity.CategoryEntity;
+import com.elys.pos.inventory.v1.entity.ItemEntity;
+import com.elys.pos.inventory.v1.entity.ItemTypeEntity;
+import com.elys.pos.inventory.v1.entity.StockTypeEntity;
+import com.elys.pos.inventory.v1.repository.CategoryRepository;
+import com.elys.pos.inventory.v1.repository.ItemRepository;
+import com.elys.pos.inventory.v1.repository.ItemTypeRepository;
+import com.elys.pos.inventory.v1.repository.StockTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
