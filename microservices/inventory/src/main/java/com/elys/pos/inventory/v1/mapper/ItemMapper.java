@@ -4,6 +4,7 @@ import com.elys.pos.inventory.v1.api.model.Item;
 import com.elys.pos.inventory.v1.entity.ItemEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
@@ -18,4 +19,6 @@ public interface ItemMapper {
             @Mapping(target = "version", ignore = true)
     })
     ItemEntity apiToEntity(Item api);
+
+    void updateEntityFromApi(Item api, @MappingTarget ItemEntity entity);
 }

@@ -27,6 +27,7 @@ ext {
 	testContainersBOMVersion = "1.20.3"
 	hamcrestVersion = "3.0"
 	datafakerVersion = "2.4.0"
+	commonsValidatorVersion = "1.9.0"
 }
 
 dependencies {
@@ -43,6 +44,8 @@ dependencies {
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 	testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 	compileOnly "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+	implementation "commons-validator:commons-validator:${commonsValidatorVersion}"
 
 	testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
 

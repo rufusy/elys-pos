@@ -1,9 +1,6 @@
 package com.elys.pos.inventory.v1.api.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,6 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item {
@@ -39,25 +37,31 @@ public class Item {
 
     @Getter
     @Setter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Category {
+        private UUID id;
         private String name;
     }
 
     @Getter
     @Setter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ItemType {
+        private UUID id;
         private String name;
     }
 
     @Getter
     @Setter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class StockType {
+        private UUID id;
         private String name;
     }
 }

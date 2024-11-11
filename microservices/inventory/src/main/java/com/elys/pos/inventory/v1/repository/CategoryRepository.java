@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -28,4 +29,6 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID>,
     void softDelete(@Param("id") UUID id,
                     @Param("deletedBy") Long deletedBy,
                     @Param("deletedAt") LocalDateTime deletedAt);
+
+    Optional<CategoryEntity> findByName(String name);
 }

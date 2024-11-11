@@ -9,6 +9,7 @@ import com.elys.pos.inventory.v1.specification.ItemSpecification;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.constraintvalidators.hv.UUIDValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -36,13 +39,13 @@ public class ItemController implements ItemResource {
         this.itemService = itemService;
     }
 
-    public ResponseEntity<Page<Item>> getItems(String param, String sort, int page, int size) {
+    public ResponseEntity<Page<Item>> getItems(String filter, String sort, int page, int size) {
 
-        log.debug("Received param: {}", param);
+        log.debug("Received filter options: {}", filter);
 
-        if (param != null && !param.isEmpty()) {
+        if (filter != null && !filter.isEmpty()) {
             try {
-                itemFilterOptions = objectMapper.readValue(param, ItemFilterOptions.class);
+                itemFilterOptions = objectMapper.readValue(filter, ItemFilterOptions.class);
                 log.debug("Parsed ItemFilterOptions: {}", itemFilterOptions.toString());
             } catch (JsonProcessingException e) {
                 log.warn("Error parsing JSON: {}", e.getMessage());
@@ -77,6 +80,26 @@ public class ItemController implements ItemResource {
         Pageable pageable = PageRequest.of(page, size, sorting);
         Specification<ItemEntity> spec = itemSpecification.getItemsByCriteria(itemFilterOptions);
         return ResponseEntity.status(OK).body(itemService.getItems(spec, pageable));
+    }
+
+    @Override
+    public ResponseEntity<Mono<Item>> getItemById(String itemId) {
+        return ResponseEntity.status(OK).body(itemService.getItemById(itemId));
+    }
+
+    @Override
+    public ResponseEntity<Mono<Item>> createItem(Item item) {
+        return ResponseEntity.status(OK).body(itemService.createItem(item));
+    }
+
+    @Override
+    public ResponseEntity<Mono<Item>> updateItem(Item item) {
+        return ResponseEntity.status(OK).body(itemService.updateItem(item));
+    }
+
+    @Override
+    public ResponseEntity<Mono<Void>> deleteItem(String itemId) {
+        return ResponseEntity.status(OK).body(itemService.deleteItem(itemId));
     }
 }
 

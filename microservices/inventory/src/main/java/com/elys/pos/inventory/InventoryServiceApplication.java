@@ -8,10 +8,16 @@ import com.elys.pos.inventory.v1.repository.CategoryRepository;
 import com.elys.pos.inventory.v1.repository.ItemRepository;
 import com.elys.pos.inventory.v1.repository.ItemTypeRepository;
 import com.elys.pos.inventory.v1.repository.StockTypeRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,11 +25,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @SpringBootApplication
+@ComponentScan("com.elys.pos")
 public class InventoryServiceApplication {
+    private final Integer threadPoolSize;
+    private final Integer taskQueueSize;
+
+    public InventoryServiceApplication(@Value("${app.threadPoolSize:10}") Integer threadPoolSize,
+                                       @Value("${app.taskQueueSize:100}") Integer taskQueueSize) {
+        this.threadPoolSize = threadPoolSize;
+        this.taskQueueSize = taskQueueSize;
+    }
+
+    @Bean(name = "jdbcScheduler")
+    public Scheduler jdbcScheduler() {
+        log.info("Creates a jdbcScheduler with the thread pool size = {}", threadPoolSize);
+        return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "jdbc-pool");
+    }
+
+    @Bean(name = "publishEventScheduler")
+    public Scheduler publishEventScheduler() {
+        log.info("Creates a messagingScheduler with connectionPoolSize = {}", threadPoolSize);
+        return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "publish-pool");
+    }
 
     public static void main(String[] args) {
-        SpringApplication.run(InventoryServiceApplication.class, args);
+        ConfigurableApplicationContext ctx = SpringApplication.run(InventoryServiceApplication.class, args);
+        String postgresUrl = ctx.getEnvironment().getProperty("spring.datasource.url");
+        log.info("Connected to Postgres: {}", postgresUrl);
     }
 
     @Bean
@@ -73,5 +103,4 @@ public class InventoryServiceApplication {
             itemRepository.saveAll(itemEntityList);
         };
     }
-
 }
