@@ -84,6 +84,7 @@ public class ItemController implements ItemResource {
 
     @Override
     public ResponseEntity<Mono<Item>> getItemById(String itemId) {
+        validatorUtil.validateUUID(itemId);
         return ResponseEntity.status(OK).body(itemService.getItemById(itemId));
     }
 

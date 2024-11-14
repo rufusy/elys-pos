@@ -11,9 +11,8 @@ import com.elys.pos.inventory.v1.repository.ItemRepository;
 import com.elys.pos.inventory.v1.repository.ItemTypeRepository;
 import com.elys.pos.inventory.v1.repository.StockTypeRepository;
 import com.elys.pos.inventory.v1.specification.SpecificationUtils;
-import com.elys.pos.util.v1.ValidatorUtil;
-import com.elys.pos.util.v1.exception.NotFoundException;
 import com.elys.pos.util.v1.ServiceUtil;
+import com.elys.pos.util.v1.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -42,11 +41,11 @@ public class ItemServiceImpl implements ItemService {
     @Qualifier("publishEventScheduler")
     private final Scheduler publishEventScheduler;
     private final ServiceUtil serviceUtil;
-    private final ValidatorUtil validatorUtil;
 
     public ItemServiceImpl(ItemRepository itemRepository, CategoryRepository categoryRepository,
                            StockTypeRepository stockTypeRepository, ItemTypeRepository itemTypeRepository,
-                           ItemMapper itemMapper, Scheduler jdbcScheduler, Scheduler publishEventScheduler, ServiceUtil serviceUtil, ValidatorUtil validatorUtil) {
+                           ItemMapper itemMapper, Scheduler jdbcScheduler, Scheduler publishEventScheduler,
+                           ServiceUtil serviceUtil) {
         this.itemRepository = itemRepository;
         this.categoryRepository = categoryRepository;
         this.stockTypeRepository = stockTypeRepository;
@@ -55,7 +54,6 @@ public class ItemServiceImpl implements ItemService {
         this.jdbcScheduler = jdbcScheduler;
         this.publishEventScheduler = publishEventScheduler;
         this.serviceUtil = serviceUtil;
-        this.validatorUtil = validatorUtil;
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +71,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Item internalGetItemById(String itemId) {
-        validatorUtil.validateUUID(itemId);
         log.debug("getItem: will try to get an item of id: {}", itemId);
         ItemEntity entity = itemRepository.findById(UUID.fromString(itemId))
                 .orElseThrow(() -> new NotFoundException("No item found for itemId: " + itemId));
