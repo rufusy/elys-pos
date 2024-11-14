@@ -6,22 +6,20 @@ import com.elys.pos.inventory.v1.entity.ItemEntity;
 import com.elys.pos.inventory.v1.filter.ItemFilterOptions;
 import com.elys.pos.inventory.v1.service.ItemService;
 import com.elys.pos.inventory.v1.specification.ItemSpecification;
+import com.elys.pos.util.v1.exception.InvalidInputException;
+import com.elys.pos.util.v1.ValidatorUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.constraintvalidators.hv.UUIDValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -32,11 +30,13 @@ public class ItemController implements ItemResource {
     private final ItemSpecification itemSpecification;
     private final ItemService itemService;
     private ItemFilterOptions itemFilterOptions;
+    private final ValidatorUtil validatorUtil;
 
-    public ItemController(ObjectMapper objectMapper, ItemSpecification itemSpecification, ItemService itemService) {
+    public ItemController(ObjectMapper objectMapper, ItemSpecification itemSpecification, ItemService itemService, ValidatorUtil validatorUtil) {
         this.objectMapper = objectMapper;
         this.itemSpecification = itemSpecification;
         this.itemService = itemService;
+        this.validatorUtil = validatorUtil;
     }
 
     public ResponseEntity<Page<Item>> getItems(String filter, String sort, int page, int size) {
@@ -99,6 +99,7 @@ public class ItemController implements ItemResource {
 
     @Override
     public ResponseEntity<Mono<Void>> deleteItem(String itemId) {
+        validatorUtil.validateUUID(itemId);
         return ResponseEntity.status(OK).body(itemService.deleteItem(itemId));
     }
 }

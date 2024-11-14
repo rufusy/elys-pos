@@ -1,0 +1,36 @@
+plugins {
+	id 'java'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.elys.pos'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	springBootVersion = '3.3.4'
+	lombokVerion = "1.18.34"
+}
+
+dependencies {
+	implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	compileOnly "org.projectlombok:lombok:${lombokVerion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVerion}"
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

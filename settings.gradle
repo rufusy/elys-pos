@@ -1,3 +1,4 @@
 rootProject.name = 'elys-pos'
 
+include ':util'
 include ':microservices:inventory'

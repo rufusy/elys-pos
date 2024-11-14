@@ -11,6 +11,9 @@ import com.elys.pos.inventory.v1.repository.ItemRepository;
 import com.elys.pos.inventory.v1.repository.ItemTypeRepository;
 import com.elys.pos.inventory.v1.repository.StockTypeRepository;
 import com.elys.pos.inventory.v1.specification.SpecificationUtils;
+import com.elys.pos.util.v1.ValidatorUtil;
+import com.elys.pos.util.v1.exception.NotFoundException;
+import com.elys.pos.util.v1.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -33,18 +36,17 @@ public class ItemServiceImpl implements ItemService {
     private final CategoryRepository categoryRepository;
     private final StockTypeRepository stockTypeRepository;
     private final ItemTypeRepository itemTypeRepository;
-
     private final ItemMapper itemMapper;
-
     @Qualifier("jdbcScheduler")
     private final Scheduler jdbcScheduler;
-
     @Qualifier("publishEventScheduler")
     private final Scheduler publishEventScheduler;
+    private final ServiceUtil serviceUtil;
+    private final ValidatorUtil validatorUtil;
 
     public ItemServiceImpl(ItemRepository itemRepository, CategoryRepository categoryRepository,
                            StockTypeRepository stockTypeRepository, ItemTypeRepository itemTypeRepository,
-                           ItemMapper itemMapper, Scheduler jdbcScheduler, Scheduler publishEventScheduler) {
+                           ItemMapper itemMapper, Scheduler jdbcScheduler, Scheduler publishEventScheduler, ServiceUtil serviceUtil, ValidatorUtil validatorUtil) {
         this.itemRepository = itemRepository;
         this.categoryRepository = categoryRepository;
         this.stockTypeRepository = stockTypeRepository;
@@ -52,6 +54,8 @@ public class ItemServiceImpl implements ItemService {
         this.itemMapper = itemMapper;
         this.jdbcScheduler = jdbcScheduler;
         this.publishEventScheduler = publishEventScheduler;
+        this.serviceUtil = serviceUtil;
+        this.validatorUtil = validatorUtil;
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
     public Page<Item> getItems(Specification<ItemEntity> specification, Pageable pageable) {
         Specification<ItemEntity> combinedSpec = specification
                 .and(SpecificationUtils.booleanFieldEquals("deleted", false));
-        return itemRepository.findAll(combinedSpec, pageable).map(itemMapper::entityToApi);
+        return itemRepository.findAll(combinedSpec, pageable).map(itemMapper::entityToApi).map(this::setServiceAddress);
     }
 
     @Transactional(readOnly = true)
@@ -69,10 +73,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Item internalGetItemById(String itemId) {
+        validatorUtil.validateUUID(itemId);
         log.debug("getItem: will try to get an item of id: {}", itemId);
         ItemEntity entity = itemRepository.findById(UUID.fromString(itemId))
-                .orElseThrow(() -> new RuntimeException("No item found for itemId: " + itemId));
-        return itemMapper.entityToApi(entity);
+                .orElseThrow(() -> new NotFoundException("No item found for itemId: " + itemId));
+        return setServiceAddress(itemMapper.entityToApi(entity));
     }
 
     @Transactional
@@ -95,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
 
         log.debug("createItem: created an item entity of name: {}", body.getName());
 
-        return itemMapper.entityToApi(newItemEntity);
+        return setServiceAddress(itemMapper.entityToApi(newItemEntity));
     }
 
     @Transactional
@@ -108,7 +113,7 @@ public class ItemServiceImpl implements ItemService {
         log.debug("updateItem: will try to update an item of name: {}", body.getName());
 
         ItemEntity existingItemEntity = itemRepository.findById(body.getId())
-                .orElseThrow(() -> new RuntimeException("updateItem: no Item found with id: " + body.getId()));
+                .orElseThrow(() -> new NotFoundException("No Item found with id: " + body.getId()));
 // Caused by: jakarta.validation.ConstraintViolationException: Validation failed for classes [com.elys.pos.inventory.v1.entity.ItemEntity]
 //        itemMapper.updateEntityFromApi(body, existingItemEntity);
 
@@ -133,7 +138,7 @@ public class ItemServiceImpl implements ItemService {
         ItemEntity updatedItem = itemRepository.save(existingItemEntity);
         log.debug("updateItem: updated an item entity of name: {}", existingItemEntity.getName());
 
-        return itemMapper.entityToApi(updatedItem);
+        return setServiceAddress(itemMapper.entityToApi(updatedItem));
     }
 
     @Transactional
@@ -144,43 +149,32 @@ public class ItemServiceImpl implements ItemService {
 
     private void internalDeleteItem(String itemId) {
         log.debug("deleteItem: will try to delete an item with id: {}", itemId);
-
-        if (!isValidUUID(itemId)) {
-            log.debug("deleteItem: invalid itemId: {}", itemId);
-            throw new RuntimeException("deleteItem: invalid itemId: " + itemId);
-        }
-
         Optional<ItemEntity> entity = itemRepository.findById(UUID.fromString(itemId));
-
         if (entity.isPresent()) {
-            itemRepository.delete(entity.get());
+            itemRepository.flagAsDeleted(UUID.fromString(itemId), entity.get().getCreatedBy(), LocalDateTime.now());
             log.debug("deleteItem: deleted item with id: {}", itemId);
         } else {
             log.debug("deleteItem: item with id: {} not found, nothing to delete.", itemId);
         }
     }
 
-    public static boolean isValidUUID(String uuid) {
-        try {
-            UUID.fromString(uuid);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
     private CategoryEntity getCategory(String categoryName) {
         return categoryRepository.findByName(categoryName)
-                .orElseThrow(() -> new RuntimeException("No category found of name: " + categoryName));
+                .orElseThrow(() -> new NotFoundException("No category found of name: " + categoryName));
     }
 
     private StockTypeEntity getStockType(String stockTypeName) {
         return stockTypeRepository.findByName(stockTypeName)
-                .orElseThrow(() -> new RuntimeException("No stock type found of name: " + stockTypeName));
+                .orElseThrow(() -> new NotFoundException("No stock type found of name: " + stockTypeName));
     }
 
     private ItemTypeEntity getItemType(String itemTypeName) {
         return itemTypeRepository.findByName(itemTypeName)
-                .orElseThrow(() -> new RuntimeException("No item type found of name: " + itemTypeName));
+                .orElseThrow(() -> new NotFoundException("No item type found of name: " + itemTypeName));
+    }
+
+    private Item setServiceAddress(Item e) {
+        e.setServiceAddress(serviceUtil.getServiceAddress());
+        return e;
     }
 }

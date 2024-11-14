@@ -11,21 +11,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface ItemRepository extends JpaRepository<ItemEntity, UUID>, PagingAndSortingRepository<ItemEntity, UUID>,
         JpaSpecificationExecutor<ItemEntity> {
 
-    @Transactional(readOnly = true)
-    @Query("SELECT e FROM ItemEntity e WHERE e.deleted = false")
-    List<ItemEntity> findAllActive();
-
     @Modifying
     @Transactional
     @Query("UPDATE ItemEntity e SET e.deleted = true, e.deletedBy = :deletedBy, e.deletedAt = :deletedAt WHERE e.id = :id")
-    void softDelete(@Param("id") UUID id,
-                    @Param("deletedBy") Long deletedBy,
-                    @Param("deletedAt") LocalDateTime deletedAt);
+    void flagAsDeleted(@Param("id") UUID id, @Param("deletedBy") UUID deletedBy, @Param("deletedAt") LocalDateTime deletedAt);
 }
