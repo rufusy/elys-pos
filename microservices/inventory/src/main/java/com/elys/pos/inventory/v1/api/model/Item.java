@@ -8,11 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class Item {
     private UUID id;
 
@@ -109,33 +105,21 @@ public class Item {
     @NotNull(message = "Stock type cannot be null")
     private StockType stockType;
 
-    @Getter
-    @Setter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
     public static class Category {
         @NotNull(message = "Category name cannot be null")
         @NotBlank(message = "Category name cannot be empty")
         private String name;
     }
 
-    @Getter
-    @Setter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
     public static class ItemType {
         @NotNull(message = "Item type name cannot be null")
         @NotBlank(message = "Item type name cannot be empty")
         private String name;
     }
 
-    @Getter
-    @Setter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
     public static class StockType {
         @NotNull(message = "Stock type name cannot be null")
         @NotBlank(message = "Stock type name cannot be empty")
