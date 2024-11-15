@@ -7,8 +7,6 @@ import com.elys.pos.inventory.v1.filter.ItemFilterOptions;
 import com.elys.pos.inventory.v1.service.ItemService;
 import com.elys.pos.inventory.v1.specification.ItemSpecification;
 import com.elys.pos.util.v1.exception.InvalidInputException;
-import com.elys.pos.util.v1.ValidatorUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,37 +27,28 @@ public class ItemController implements ItemResource {
     private final ObjectMapper objectMapper;
     private final ItemSpecification itemSpecification;
     private final ItemService itemService;
-    private ItemFilterOptions itemFilterOptions;
-    private final ValidatorUtil validatorUtil;
 
-    public ItemController(ObjectMapper objectMapper, ItemSpecification itemSpecification, ItemService itemService, ValidatorUtil validatorUtil) {
+    public ItemController(ObjectMapper objectMapper, ItemSpecification itemSpecification, ItemService itemService) {
         this.objectMapper = objectMapper;
         this.itemSpecification = itemSpecification;
         this.itemService = itemService;
-        this.validatorUtil = validatorUtil;
     }
 
     public ResponseEntity<Page<Item>> getItems(String filter, String sort, int page, int size) {
 
-        log.debug("Received filter options: {}", filter);
+        ItemFilterOptions itemFilterOptions;
 
         if (filter != null && !filter.isEmpty()) {
             try {
                 itemFilterOptions = objectMapper.readValue(filter, ItemFilterOptions.class);
-                log.debug("Parsed ItemFilterOptions: {}", itemFilterOptions.toString());
-            } catch (JsonProcessingException e) {
-                log.warn("Error parsing JSON: {}", e.getMessage());
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                    .body("Error parsing parameters: " + e.getMessage());
+                log.debug("getItems: using parsed ItemFilterOptions: {}", itemFilterOptions.toString());
             } catch (Exception e) {
-                log.error("Unexpected error occurred: {}", e.getMessage(), e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body("Unexpected error: " + e.getMessage());
+                log.debug("getItems: error parsing ItemFilterOptions JSON: {}", e.getMessage());
+                throw new InvalidInputException("Error parsing ItemFilterOptions");
             }
-
         } else {
             itemFilterOptions = ItemFilterOptions.builder().build();
-            log.debug("Using default ItemFilterOptions: {}", itemFilterOptions.toString());
+            log.debug("getItems: using default ItemFilterOptions: {}", itemFilterOptions.toString());
         }
 
         Sort sorting = Sort.unsorted();
@@ -84,7 +73,6 @@ public class ItemController implements ItemResource {
 
     @Override
     public ResponseEntity<Mono<Item>> getItemById(String itemId) {
-        validatorUtil.validateUUID(itemId);
         return ResponseEntity.status(OK).body(itemService.getItemById(itemId));
     }
 
@@ -100,7 +88,6 @@ public class ItemController implements ItemResource {
 
     @Override
     public ResponseEntity<Mono<Void>> deleteItem(String itemId) {
-        validatorUtil.validateUUID(itemId);
         return ResponseEntity.status(OK).body(itemService.deleteItem(itemId));
     }
 }

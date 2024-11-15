@@ -1,6 +1,9 @@
 package com.elys.pos.inventory.v1.api.resource;
 
 import com.elys.pos.inventory.v1.api.model.Item;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +16,9 @@ public interface ItemResource {
      * curl $HOST:$PORT/items?param=%7B%22name%22%3A%22item%22%7D&sort=name:desc,itemNumber:asc&page=0&size=10
      *
      * @param filter url encoded param to search items e.g. {"name":"item"}
-     * @param sort param to order items
-     * @param page page number requested
-     * @param size number of items requested per page
+     * @param sort   param to order items
+     * @param page   page number requested
+     * @param size   number of items requested per page
      * @return items in the page
      */
     @GetMapping(
@@ -36,7 +39,13 @@ public interface ItemResource {
      */
     @GetMapping(value = "/items/{itemId}",
             produces = "application/json")
-    ResponseEntity<Mono<Item>> getItemById(@PathVariable(value = "itemId") String itemId);
+    ResponseEntity<Mono<Item>> getItemById(
+            @PathVariable(value = "itemId")
+            @Pattern(
+                    regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+                    message = "Invalid format for item id"
+            )
+            String itemId);
 
     /**
      * Sample usage:
@@ -51,7 +60,7 @@ public interface ItemResource {
             consumes = "application/json",
             produces = "application/json"
     )
-    ResponseEntity<Mono<Item>> createItem(@RequestBody Item body);
+    ResponseEntity<Mono<Item>> createItem(@RequestBody @Valid Item body);
 
     /**
      * Sample usage:
@@ -66,7 +75,7 @@ public interface ItemResource {
             consumes = "application/json",
             produces = "application/json"
     )
-    ResponseEntity<Mono<Item>> updateItem(@RequestBody Item body);
+    ResponseEntity<Mono<Item>> updateItem(@RequestBody @Valid Item body);
 
     /**
      * Sample usage:
@@ -75,5 +84,11 @@ public interface ItemResource {
      * @param itemId item id
      */
     @DeleteMapping(value = "/items/{itemId}")
-    ResponseEntity<Mono<Void>> deleteItem(@PathVariable(value = "itemId") String itemId);
+    ResponseEntity<Mono<Void>> deleteItem(
+            @PathVariable(value = "itemId")
+            @Pattern(
+                    regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+                    message = "Invalid format for item id"
+            )
+            String itemId);
 }

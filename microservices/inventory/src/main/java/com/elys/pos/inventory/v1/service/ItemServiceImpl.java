@@ -12,9 +12,11 @@ import com.elys.pos.inventory.v1.repository.ItemTypeRepository;
 import com.elys.pos.inventory.v1.repository.StockTypeRepository;
 import com.elys.pos.inventory.v1.specification.SpecificationUtils;
 import com.elys.pos.util.v1.ServiceUtil;
+import com.elys.pos.util.v1.exception.InvalidInputException;
 import com.elys.pos.util.v1.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -59,6 +61,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public Page<Item> getItems(Specification<ItemEntity> specification, Pageable pageable) {
+        log.debug("getItems: will try to get all items not flagged as deleted matching given filters");
         Specification<ItemEntity> combinedSpec = specification
                 .and(SpecificationUtils.booleanFieldEquals("deleted", false));
         return itemRepository.findAll(combinedSpec, pageable).map(itemMapper::entityToApi).map(this::setServiceAddress);
@@ -85,19 +88,19 @@ public class ItemServiceImpl implements ItemService {
 
     private Item internalCreateItem(Item body) {
         log.debug("createItem: will try to create an item of name: {}", body.getName());
+        try {
+            ItemEntity itemEntity = itemMapper.apiToEntity(body);
+            itemEntity.setCreatedAt(LocalDateTime.now());
+            itemEntity.setCategory(this.getCategory(body.getCategory().getName()));
+            itemEntity.setItemType(this.getItemType(body.getItemType().getName()));
+            itemEntity.setStockType(this.getStockType(body.getStockType().getName()));
 
-        // org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: duplicate key value violates unique constraint "items_item_number_key"
-        ItemEntity itemEntity = itemMapper.apiToEntity(body);
-        itemEntity.setCreatedAt(LocalDateTime.now());
-
-        itemEntity.setCategory(this.getCategory(body.getCategory().getName()));
-        itemEntity.setItemType(this.getItemType(body.getItemType().getName()));
-        itemEntity.setStockType(this.getStockType(body.getStockType().getName()));
-        ItemEntity newItemEntity = itemRepository.save(itemEntity);
-
-        log.debug("createItem: created an item entity of name: {}", body.getName());
-
-        return setServiceAddress(itemMapper.entityToApi(newItemEntity));
+            ItemEntity newItemEntity = itemRepository.save(itemEntity);
+            log.debug("createItem: created an item entity of name: {}", body.getName());
+            return setServiceAddress(itemMapper.entityToApi(newItemEntity));
+        } catch (DataIntegrityViolationException ex) {
+            throw new InvalidInputException("Duplicate values found while trying to create item");
+        }
     }
 
     @Transactional
@@ -108,34 +111,34 @@ public class ItemServiceImpl implements ItemService {
 
     private Item internalUpdateItem(Item body) {
         log.debug("updateItem: will try to update an item of name: {}", body.getName());
+        try {
+            ItemEntity itemEntity = itemMapper.apiToEntity(body);
 
-        ItemEntity existingItemEntity = itemRepository.findById(body.getId())
-                .orElseThrow(() -> new NotFoundException("No Item found with id: " + body.getId()));
-// Caused by: jakarta.validation.ConstraintViolationException: Validation failed for classes [com.elys.pos.inventory.v1.entity.ItemEntity]
-//        itemMapper.updateEntityFromApi(body, existingItemEntity);
+            ItemEntity existingItemEntity = itemRepository.findById(body.getId())
+                    .orElseThrow(() -> new NotFoundException("No Item found with id: " + body.getId()));
+            existingItemEntity.setName(itemEntity.getName());
+            existingItemEntity.setDescription(itemEntity.getDescription());
+            existingItemEntity.setItemNumber(itemEntity.getItemNumber());
+            existingItemEntity.setImageUrl(itemEntity.getImageUrl());
+            existingItemEntity.setSupplierId(itemEntity.getSupplierId());
+            existingItemEntity.setTaxCategoryId(itemEntity.getTaxCategoryId());
+            existingItemEntity.setHsnCode(itemEntity.getHsnCode());
+            existingItemEntity.setSellingPrice(itemEntity.getSellingPrice());
+            existingItemEntity.setSerialized(itemEntity.isSerialized());
+            existingItemEntity.setBatchTracked(itemEntity.isBatchTracked());
+            existingItemEntity.setUpdatedBy(itemEntity.getUpdatedBy());
+            existingItemEntity.setUpdatedAt(LocalDateTime.now());
+            existingItemEntity.setCategory(this.getCategory(body.getCategory().getName()));
+            existingItemEntity.setItemType(this.getItemType(body.getItemType().getName()));
+            existingItemEntity.setStockType(this.getStockType(body.getStockType().getName()));
 
-        ItemEntity itemEntity = itemMapper.apiToEntity(body);
+            ItemEntity updatedItem = itemRepository.save(existingItemEntity);
+            log.debug("updateItem: updated an item entity of id: {}", updatedItem.getId());
 
-        existingItemEntity.setName(itemEntity.getName());
-        existingItemEntity.setDescription(itemEntity.getDescription());
-        existingItemEntity.setItemNumber(itemEntity.getItemNumber());
-        existingItemEntity.setImageUrl(itemEntity.getImageUrl());
-        existingItemEntity.setSupplierId(itemEntity.getSupplierId());
-        existingItemEntity.setTaxCategoryId(itemEntity.getTaxCategoryId());
-        existingItemEntity.setHsnCode(itemEntity.getHsnCode());
-        existingItemEntity.setSellingPrice(itemEntity.getSellingPrice());
-        existingItemEntity.setSerialized(itemEntity.isSerialized());
-        existingItemEntity.setBatchTracked(itemEntity.isBatchTracked());
-        existingItemEntity.setUpdatedBy(itemEntity.getUpdatedBy());
-        existingItemEntity.setUpdatedAt(LocalDateTime.now());
-        existingItemEntity.setCategory(this.getCategory(body.getCategory().getName()));
-        existingItemEntity.setItemType(this.getItemType(body.getItemType().getName()));
-        existingItemEntity.setStockType(this.getStockType(body.getStockType().getName()));
-
-        ItemEntity updatedItem = itemRepository.save(existingItemEntity);
-        log.debug("updateItem: updated an item entity of name: {}", existingItemEntity.getName());
-
-        return setServiceAddress(itemMapper.entityToApi(updatedItem));
+            return setServiceAddress(itemMapper.entityToApi(updatedItem));
+        } catch (DataIntegrityViolationException e) {
+            throw new InvalidInputException("Duplicate values found while trying to update item");
+        }
     }
 
     @Transactional
