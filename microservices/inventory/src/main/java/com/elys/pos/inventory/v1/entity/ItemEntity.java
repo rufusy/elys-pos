@@ -15,7 +15,7 @@ import java.util.UUID;
 @Setter
 @SuperBuilder
 @Entity
-@Table(name = "items")
+@Table(name = "items", uniqueConstraints = @UniqueConstraint(name = "unique_item_name", columnNames = "name"))
 public class ItemEntity extends BaseEntity {
 
     @Id
@@ -23,7 +23,7 @@ public class ItemEntity extends BaseEntity {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @ManyToOne

@@ -5,12 +5,12 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class Item {
-    private UUID id;
+
+    @org.hibernate.validator.constraints.UUID(message = "Invalid format for item id")
+    private String id;
 
     @NotNull(message = "Name cannot be null")
     @NotBlank(message = "Name cannot be empty")
@@ -27,17 +27,11 @@ public class Item {
     @Size(max = 255, message = "Image url must be less than 255 characters")
     private String imageUrl;
 
-//    @Pattern(
-//            regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-//            message = "Invalid UUID format for supplierId"
-//    )
-    private UUID supplierId;
+    @org.hibernate.validator.constraints.UUID(message = "Invalid format for supplier id")
+    private String supplierId;
 
-//    @Pattern(
-//            regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-//            message = "Invalid UUID format for taxCategoryId"
-//    )
-    private UUID taxCategoryId;
+    @org.hibernate.validator.constraints.UUID(message = "Invalid format for tax category id")
+    private String taxCategoryId;
 
     @NotNull(message = "HSN code cannot be null")
     @NotBlank(message = "HSN code cannot be empty")
@@ -55,43 +49,25 @@ public class Item {
     @NotNull(message = "Batch tracked cannot be null")
     private boolean batchTracked;
 
-//    @Pattern(
-//            regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-//            message = "Invalid UUID format for createdBy"
-//    )
-    private UUID createdBy;
+    @org.hibernate.validator.constraints.UUID(message = "Invalid format for created by id")
+    private String createdBy;
 
-//    @Pattern(
-//            regexp = "^\\d{4}-\\d{2}-\\d{2}$",
-//            message = "Invalid date format for createdAt. Expected YYYY-MM-DD"
-//    )
-    private LocalDateTime createdAt;
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date format for created at. Expected format is YYYY-MM-DD")
+    private String createdAt;
 
-//    @Pattern(
-//            regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-//            message = "Invalid UUID format for updatedBy"
-//    )
-    private UUID updatedBy;
+    @org.hibernate.validator.constraints.UUID(message = "Invalid format for updated by id")
+    private String updatedBy;
 
-//    @Pattern(
-//            regexp = "^\\d{4}-\\d{2}-\\d{2}$",
-//            message = "Invalid date format for updatedAt. Expected YYYY-MM-DD"
-//    )
-    private LocalDateTime updatedAt;
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date format for updated at. Expected format is YYYY-MM-DD")
+    private String updatedAt;
 
     private boolean deleted;
 
-//    @Pattern(
-//            regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-//            message = "Invalid UUID format for deletedBy"
-//    )
-    private UUID deletedBy;
+    @org.hibernate.validator.constraints.UUID(message = "Invalid format for deleted by id")
+    private String deletedBy;
 
-//    @Pattern(
-//            regexp = "^\\d{4}-\\d{2}-\\d{2}$",
-//            message = "Invalid date format for deletedAt. Expected YYYY-MM-DD"
-//    )
-    private LocalDateTime deletedAt;
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date format for deleted at. Expected format is YYYY-MM-DD")
+    private String deletedAt;
 
     private String serviceAddress;
 

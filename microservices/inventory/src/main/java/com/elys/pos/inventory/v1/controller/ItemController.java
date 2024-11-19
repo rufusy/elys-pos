@@ -15,12 +15,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
+@Validated
 @RestController
 public class ItemController implements ItemResource {
 

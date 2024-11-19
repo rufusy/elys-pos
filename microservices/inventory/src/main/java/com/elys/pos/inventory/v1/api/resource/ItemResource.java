@@ -2,13 +2,13 @@ package com.elys.pos.inventory.v1.api.resource;
 
 import com.elys.pos.inventory.v1.api.model.Item;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+@RequestMapping("/v1")
 public interface ItemResource {
 
     /**
@@ -24,8 +24,7 @@ public interface ItemResource {
     @GetMapping(
             value = "/items",
             produces = "application/json")
-    ResponseEntity<Page<Item>> getItems(
-            @RequestParam(value = "filter", required = false, defaultValue = "") String filter,
+    ResponseEntity<Page<Item>> getItems(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
             @RequestParam(value = "sort", required = false, defaultValue = "") String sort,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size);
@@ -37,44 +36,27 @@ public interface ItemResource {
      * @param itemId id of the item
      * @return item if found, else null
      */
-    @GetMapping(value = "/items/{itemId}",
-            produces = "application/json")
-    ResponseEntity<Mono<Item>> getItemById(
-            @PathVariable(value = "itemId")
-            @Pattern(
-                    regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-                    message = "Invalid format for item id"
-            )
-            String itemId);
+    @GetMapping(value = "/items/{itemId}", produces = "application/json")
+    ResponseEntity<Mono<Item>> getItemById(@PathVariable(value = "itemId") @UUID(message = "Invalid format for item id") String itemId);
 
     /**
      * Sample usage:
-     * curl -X POST $HOST:$PORT/items -H "Content-Type:application/json" \
-     * -d "{...body...}"
+     * curl -X POST $HOST:$PORT/items -H "Content-Type:application/json" -d "{...body...}"
      *
      * @param body a JSON representation of the new item
      * @return a JSON representation of the newly created item
      */
-    @PostMapping(
-            value = "/items",
-            consumes = "application/json",
-            produces = "application/json"
-    )
+    @PostMapping(value = "/items", consumes = "application/json", produces = "application/json")
     ResponseEntity<Mono<Item>> createItem(@RequestBody @Valid Item body);
 
     /**
      * Sample usage:
-     * curl -X UPDATE $HOST:$PORT/items -H "Content-Type:application/json" \
-     * -d "{...body...}"
+     * curl -X UPDATE $HOST:$PORT/items -H "Content-Type:application/json" -d "{...body...}"
      *
      * @param body a JSON representation of the updated item
      * @return a JSON representation of the updated item
      */
-    @PutMapping(
-            value = "/items",
-            consumes = "application/json",
-            produces = "application/json"
-    )
+    @PutMapping(value = "/items", consumes = "application/json", produces = "application/json")
     ResponseEntity<Mono<Item>> updateItem(@RequestBody @Valid Item body);
 
     /**
@@ -84,11 +66,5 @@ public interface ItemResource {
      * @param itemId item id
      */
     @DeleteMapping(value = "/items/{itemId}")
-    ResponseEntity<Mono<Void>> deleteItem(
-            @PathVariable(value = "itemId")
-            @Pattern(
-                    regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-                    message = "Invalid format for item id"
-            )
-            String itemId);
+    ResponseEntity<Mono<Void>> deleteItem(@PathVariable(value = "itemId") @UUID(message = "Invalid format for item id") String itemId);
 }
