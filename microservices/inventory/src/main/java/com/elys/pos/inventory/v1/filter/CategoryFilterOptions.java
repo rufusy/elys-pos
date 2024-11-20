@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class CategoryFilterOptions extends FilterOptions {
+final public class CategoryFilterOptions extends FilterOptions {
     private String name;
     private String parentName;
 

@@ -17,7 +17,7 @@ import java.util.UUID;
 @Setter
 @SuperBuilder
 @Entity
-@Table(name = "categories")
+@Table(name = "categories", uniqueConstraints = @UniqueConstraint(name = "unique_category_name", columnNames = "name"))
 public class CategoryEntity extends BaseEntity {
 
     @Id
@@ -28,7 +28,7 @@ public class CategoryEntity extends BaseEntity {
     @NotBlank(message = "Name cannot be empty")
     @NotNull(message = "Name cannot be null")
     @Size(max = 255, message = "Name must be less than 255 characters")
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @NotBlank(message = "Description cannot be empty")
