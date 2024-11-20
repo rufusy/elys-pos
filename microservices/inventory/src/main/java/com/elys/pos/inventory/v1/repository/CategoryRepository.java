@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,16 +18,21 @@ import java.util.UUID;
 public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID>,
         PagingAndSortingRepository<CategoryEntity, UUID>, JpaSpecificationExecutor<CategoryEntity> {
 
-    @Transactional(readOnly = true)
-    @Query("SELECT c FROM CategoryEntity c WHERE c.deleted = false")
-    List<CategoryEntity> findAllActive();
+//    @Transactional(readOnly = true)
+//    @Query("SELECT c FROM CategoryEntity c WHERE c.deleted = false")
+//    List<CategoryEntity> findAllActive();
+
+//    @Modifying
+//    @Transactional
+//    @Query("UPDATE CategoryEntity c SET c.deleted = true, c.deletedBy = :deletedBy, c.deletedAt = :deletedAt WHERE c.id = :id")
+//    void softDelete(@Param("id") UUID id,
+//                    @Param("deletedBy") Long deletedBy,
+//                    @Param("deletedAt") LocalDateTime deletedAt);
+
+    Optional<CategoryEntity> findByName(String name);
 
     @Modifying
     @Transactional
-    @Query("UPDATE CategoryEntity c SET c.deleted = true, c.deletedBy = :deletedBy, c.deletedAt = :deletedAt WHERE c.id = :id")
-    void softDelete(@Param("id") UUID id,
-                    @Param("deletedBy") Long deletedBy,
-                    @Param("deletedAt") LocalDateTime deletedAt);
-
-    Optional<CategoryEntity> findByName(String name);
+    @Query("UPDATE CategoryEntity e SET e.deleted = true, e.deletedBy = :deletedBy, e.deletedAt = :deletedAt WHERE e.id = :id")
+    void flagAsDeleted(@Param("id") UUID id, @Param("deletedBy") UUID deletedBy, @Param("deletedAt") LocalDateTime deletedAt);
 }

@@ -78,10 +78,6 @@ public class ItemEntity extends BaseEntity {
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "items_tags",
-            joinColumns = @JoinColumn(name = "item_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
+    @JoinTable(name = "items_tags", joinColumns = @JoinColumn(name = "item_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<TagEntity> tags = Collections.emptyList();
 }

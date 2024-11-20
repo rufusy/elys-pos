@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @Slf4j
 @SpringBootApplication
-@ComponentScan("com.elys.pos")
+@ComponentScan(basePackages = {"com.elys.pos.inventory", "com.elys.pos.util.v1"})
 public class InventoryServiceApplication {
     private final Integer threadPoolSize;
     private final Integer taskQueueSize;

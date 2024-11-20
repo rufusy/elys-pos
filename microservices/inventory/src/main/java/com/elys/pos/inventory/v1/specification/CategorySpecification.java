@@ -1,42 +1,46 @@
 package com.elys.pos.inventory.v1.specification;
 
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
-import jakarta.persistence.criteria.Predicate;
+import com.elys.pos.inventory.v1.filter.CategoryFilterOptions;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.util.UUID;
 
 @Component
 public class CategorySpecification {
 
-    public Specification<CategoryEntity> notDeleted() {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("deleted"), false);
+    private Specification<CategoryEntity> parentNameEquals(String categoryName) {
+        return ((root, query, criteriaBuilder) -> {
+            if (categoryName != null && !categoryName.isEmpty()) {
+                Join<CategoryEntity, CategoryEntity> category = root.join("parentCategory");
+                return criteriaBuilder.equal(criteriaBuilder.lower(category.get("name")), categoryName.toLowerCase());
+            }
+            return criteriaBuilder.conjunction();
+        });
     }
 
-    public Specification<CategoryEntity> deleted() {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("deleted"), true);
-    }
-
-    public Specification<CategoryEntity> getCategoriesByCriteria(String name, LocalDate date, UUID parentCategoryId) {
+    public Specification<CategoryEntity> getCategoriesByCriteria(CategoryFilterOptions filterOptions) {
         return (root, query, criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.conjunction();
+            Specification<CategoryEntity> combinedSpec = Specification
+                    .where(SpecificationUtils.<CategoryEntity>stringFieldContains("name", filterOptions.getName()))
+                    .and(SpecificationUtils.dateFieldBetween("createdAt",
+                            filterOptions.getCreatedAtLowerBound(), filterOptions.getCreatedAtUpperBound()))
+                    .and(SpecificationUtils.dateFieldBetween("updatedAt",
+                            filterOptions.getUpdatedAtLowerBound(), filterOptions.getUpdatedAtUpperBound()))
+                    .and(SpecificationUtils.dateFieldBetween("deletedAt",
+                            filterOptions.getDeletedAtLowerBound(), filterOptions.getDeletedAtUpperBound()))
+                    .and(SpecificationUtils.uuidFieldEquals("createdBy", filterOptions.getCreatedBy()))
+                    .and(SpecificationUtils.uuidFieldEquals("updatedBy", filterOptions.getUpdatedBy()))
+                    .and(SpecificationUtils.uuidFieldEquals("deletedBy", filterOptions.getDeletedBy()))
+                    .and(parentNameEquals(filterOptions.getParentName()));
 
-            if (name != null && !name.isEmpty()) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
+            if ("isDeleted".equals(filterOptions.getDeleted())) {
+                combinedSpec = combinedSpec.and(SpecificationUtils.booleanFieldEquals("deleted", true));
+            } else if ("isNotDeleted".equals(filterOptions.getDeleted())) {
+                combinedSpec = combinedSpec.and(SpecificationUtils.booleanFieldEquals("deleted", false));
             }
 
-            if (date != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("createdAt"), date));
-            }
-
-            if (parentCategoryId != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("parentCategory").get("id"), parentCategoryId));
-            }
-
-            return predicate;
+            return combinedSpec.toPredicate(root, query, criteriaBuilder);
         };
     }
 }

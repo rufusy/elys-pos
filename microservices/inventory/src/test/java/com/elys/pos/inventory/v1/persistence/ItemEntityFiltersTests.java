@@ -1,5 +1,6 @@
-package com.elys.pos.inventory.persistence;
+package com.elys.pos.inventory.v1.persistence;
 
+import com.elys.pos.inventory.v1.config.DataJpaTestConfig;
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import com.elys.pos.inventory.v1.entity.ItemEntity;
 import com.elys.pos.inventory.v1.entity.ItemTypeEntity;
@@ -30,7 +31,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import(ItemSpecification.class)
+@Import({DataJpaTestConfig.class, ItemSpecification.class})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ItemEntityFiltersTests extends PostgresTestBase {
