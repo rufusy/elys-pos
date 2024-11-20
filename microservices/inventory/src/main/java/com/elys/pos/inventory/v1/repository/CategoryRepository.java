@@ -18,17 +18,6 @@ import java.util.UUID;
 public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID>,
         PagingAndSortingRepository<CategoryEntity, UUID>, JpaSpecificationExecutor<CategoryEntity> {
 
-//    @Transactional(readOnly = true)
-//    @Query("SELECT c FROM CategoryEntity c WHERE c.deleted = false")
-//    List<CategoryEntity> findAllActive();
-
-//    @Modifying
-//    @Transactional
-//    @Query("UPDATE CategoryEntity c SET c.deleted = true, c.deletedBy = :deletedBy, c.deletedAt = :deletedAt WHERE c.id = :id")
-//    void softDelete(@Param("id") UUID id,
-//                    @Param("deletedBy") Long deletedBy,
-//                    @Param("deletedAt") LocalDateTime deletedAt);
-
     Optional<CategoryEntity> findByName(String name);
 
     @Modifying
