@@ -1,7 +1,7 @@
 package com.elys.pos.inventory.v1.mapper;
 
-import com.elys.pos.inventory.v1.api.model.Item;
-import com.elys.pos.inventory.v1.entity.ItemEntity;
+import com.elys.pos.inventory.v1.api.model.Category;
+import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import org.mapstruct.*;
 
 import java.time.LocalDate;
@@ -9,13 +9,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface ItemMapper {
+public interface CategoryMapper {
 
     @Mappings({
             @Mapping(target = "serviceAddress", ignore = true),
             @Mapping(target = "id", source = "id", qualifiedByName = "uuidToString"),
-            @Mapping(target = "supplierId", source = "supplierId", qualifiedByName = "uuidToString"),
-            @Mapping(target = "taxCategoryId", source = "taxCategoryId", qualifiedByName = "uuidToString"),
             @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "uuidToString"),
             @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "uuidToString"),
             @Mapping(target = "deletedBy", source = "deletedBy", qualifiedByName = "uuidToString"),
@@ -23,13 +21,11 @@ public interface ItemMapper {
             @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "dateTimeToString"),
             @Mapping(target = "deletedAt", source = "deletedAt", qualifiedByName = "dateTimeToString"),
     })
-    Item entityToApi(ItemEntity entity);
+    Category entityToApi(CategoryEntity entity);
 
     @Mappings({
             @Mapping(target = "version", ignore = true),
             @Mapping(target = "id", source = "id", qualifiedByName = "stringToUuid"),
-            @Mapping(target = "supplierId", source = "supplierId", qualifiedByName = "stringToUuid"),
-            @Mapping(target = "taxCategoryId", source = "taxCategoryId", qualifiedByName = "stringToUuid"),
             @Mapping(target = "createdBy", source = "createdBy", qualifiedByName = "stringToUuid"),
             @Mapping(target = "updatedBy", source = "updatedBy", qualifiedByName = "stringToUuid"),
             @Mapping(target = "deletedBy", source = "deletedBy", qualifiedByName = "stringToUuid"),
@@ -37,7 +33,7 @@ public interface ItemMapper {
             @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "stringToDateTime"),
             @Mapping(target = "deletedAt", source = "deletedAt", qualifiedByName = "stringToDateTime")
     })
-    ItemEntity apiToEntity(Item api);
+    CategoryEntity apiToEntity(Category api);
 
     @Named("uuidToString")
     default String uuidToString(UUID uuid) {

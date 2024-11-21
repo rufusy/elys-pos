@@ -15,8 +15,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID>,
-        PagingAndSortingRepository<CategoryEntity, UUID>, JpaSpecificationExecutor<CategoryEntity> {
+public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID>, PagingAndSortingRepository<CategoryEntity, UUID>,
+        JpaSpecificationExecutor<CategoryEntity> {
 
     Optional<CategoryEntity> findByName(String name);
 

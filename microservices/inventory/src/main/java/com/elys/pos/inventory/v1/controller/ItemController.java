@@ -6,6 +6,7 @@ import com.elys.pos.inventory.v1.entity.ItemEntity;
 import com.elys.pos.inventory.v1.filter.ItemFilterOptions;
 import com.elys.pos.inventory.v1.service.ItemService;
 import com.elys.pos.inventory.v1.specification.ItemSpecification;
+import com.elys.pos.inventory.v1.specification.SpecificationUtils;
 import com.elys.pos.util.v1.exception.InvalidInputException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -38,19 +39,19 @@ public class ItemController implements ItemResource {
 
     public ResponseEntity<Page<Item>> getItems(String filter, String sort, int page, int size) {
 
-        ItemFilterOptions itemFilterOptions;
+        ItemFilterOptions filterOptions;
 
         if (filter != null && !filter.isEmpty()) {
             try {
-                itemFilterOptions = objectMapper.readValue(filter, ItemFilterOptions.class);
-                log.debug("getItems: using parsed ItemFilterOptions: {}", itemFilterOptions.toString());
+                filterOptions = objectMapper.readValue(filter, ItemFilterOptions.class);
+                log.debug("getItems: using parsed filter options: {}", filterOptions.toString());
             } catch (Exception e) {
-                log.debug("getItems: error parsing ItemFilterOptions JSON: {}", e.getMessage());
-                throw new InvalidInputException("Error parsing ItemFilterOptions");
+                log.debug("getItems: error parsing filter options: {}", e.getMessage());
+                throw new InvalidInputException("Error parsing filter options");
             }
         } else {
-            itemFilterOptions = ItemFilterOptions.builder().build();
-            log.debug("getItems: using default ItemFilterOptions: {}", itemFilterOptions.toString());
+            filterOptions = ItemFilterOptions.builder().build();
+            log.debug("getItems: using default filter options: {}", filterOptions.toString());
         }
 
         Sort sorting = Sort.unsorted();
@@ -69,7 +70,8 @@ public class ItemController implements ItemResource {
         }
 
         Pageable pageable = PageRequest.of(page, size, sorting);
-        Specification<ItemEntity> spec = itemSpecification.getItemsByCriteria(itemFilterOptions);
+        Specification<ItemEntity> spec = itemSpecification.getItemsByCriteria(filterOptions)
+                .and(SpecificationUtils.booleanFieldEquals("deleted", false));
         return ResponseEntity.status(OK).body(itemService.getItems(spec, pageable));
     }
 

@@ -10,7 +10,6 @@ import com.elys.pos.inventory.v1.repository.CategoryRepository;
 import com.elys.pos.inventory.v1.repository.ItemRepository;
 import com.elys.pos.inventory.v1.repository.ItemTypeRepository;
 import com.elys.pos.inventory.v1.repository.StockTypeRepository;
-import com.elys.pos.inventory.v1.specification.SpecificationUtils;
 import com.elys.pos.util.v1.ServiceUtil;
 import com.elys.pos.util.v1.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -59,10 +57,8 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public Page<Item> getItems(Specification<ItemEntity> specification, Pageable pageable) {
-        log.debug("getItems: will try to get all items not flagged as deleted matching given filters");
-        Specification<ItemEntity> combinedSpec = specification
-                .and(SpecificationUtils.booleanFieldEquals("deleted", false));
-        return itemRepository.findAll(combinedSpec, pageable).map(itemMapper::entityToApi).map(this::setServiceAddress);
+        log.debug("getItems: will try to get all items not flagged as deleted matching given specification");
+        return itemRepository.findAll(specification, pageable).map(itemMapper::entityToApi).map(this::setServiceAddress);
     }
 
     @Transactional(readOnly = true)
@@ -92,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
         itemEntity.setItemType(this.getItemType(body.getItemType().getName()));
         itemEntity.setStockType(this.getStockType(body.getStockType().getName()));
         ItemEntity newItemEntity = itemRepository.save(itemEntity);
-        log.debug("createItem: created an item entity of name: {}", body.getName());
+        log.debug("createItem: created an item of name: {}", body.getName());
         return setServiceAddress(itemMapper.entityToApi(newItemEntity));
     }
 
@@ -123,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
         existingItemEntity.setItemType(this.getItemType(body.getItemType().getName()));
         existingItemEntity.setStockType(this.getStockType(body.getStockType().getName()));
         ItemEntity updatedItem = itemRepository.save(existingItemEntity);
-        log.debug("updateItem: updated an item entity of id: {}", updatedItem.getId());
+        log.debug("updateItem: updated an item of id: {}", updatedItem.getId());
         return setServiceAddress(itemMapper.entityToApi(updatedItem));
     }
 
@@ -135,13 +131,10 @@ public class ItemServiceImpl implements ItemService {
 
     private void internalDeleteItem(String itemId) {
         log.debug("deleteItem: will try to delete an item with id: {}", itemId);
-        Optional<ItemEntity> entity = itemRepository.findById(UUID.fromString(itemId));
-        if (entity.isPresent()) {
-            itemRepository.flagAsDeleted(UUID.fromString(itemId), entity.get().getCreatedBy(), LocalDateTime.now());
-            log.debug("deleteItem: deleted item with id: {}", itemId);
-        } else {
-            log.debug("deleteItem: item with id: {} not found, nothing to delete.", itemId);
-        }
+        ItemEntity entity = itemRepository.findById(UUID.fromString(itemId))
+                .orElseThrow(() -> new NotFoundException("No Item found with id: " + itemId));
+        itemRepository.flagAsDeleted(UUID.fromString(itemId), entity.getCreatedBy(), LocalDateTime.now());
+        log.debug("deleteItem: deleted item with id: {}", itemId);
     }
 
     private CategoryEntity getCategory(String categoryName) {

@@ -1,9 +1,6 @@
 package com.elys.pos.inventory.v1.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -25,14 +22,9 @@ public class CategoryEntity extends BaseEntity {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @NotBlank(message = "Name cannot be empty")
-    @NotNull(message = "Name cannot be null")
-    @Size(max = 255, message = "Name must be less than 255 characters")
     @Column(nullable = false)
     private String name;
 
-    @NotBlank(message = "Description cannot be empty")
-    @NotNull(message = "Description cannot be null")
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 

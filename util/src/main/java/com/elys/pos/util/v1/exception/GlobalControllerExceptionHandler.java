@@ -74,6 +74,8 @@ public class GlobalControllerExceptionHandler {
             return "The item name is already taken. Please choose a different one.";
         } else if ("unique_email".equals(constraintName)) {
             return "The email address is already registered.";
+        } else if ("unique_category_name".equals(constraintName)) {
+            return "The category name is already taken. Please choose a different one.";
         }
         return "A database constraint violation occurred.";
     }

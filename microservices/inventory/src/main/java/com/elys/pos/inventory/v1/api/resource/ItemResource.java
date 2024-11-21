@@ -21,10 +21,9 @@ public interface ItemResource {
      * @param size   number of items requested per page
      * @return items in the page
      */
-    @GetMapping(
-            value = "/items",
-            produces = "application/json")
-    ResponseEntity<Page<Item>> getItems(@RequestParam(value = "filter", required = false, defaultValue = "") String filter,
+    @GetMapping(value = "/items", produces = "application/json")
+    ResponseEntity<Page<Item>> getItems(
+            @RequestParam(value = "filter", required = false, defaultValue = "") String filter,
             @RequestParam(value = "sort", required = false, defaultValue = "") String sort,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size);

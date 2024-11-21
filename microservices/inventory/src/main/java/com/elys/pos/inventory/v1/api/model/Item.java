@@ -72,7 +72,7 @@ public class Item {
     private String serviceAddress;
 
     @Valid
-    @NotNull(message = "Category type cannot be null")
+    @NotNull(message = "Category cannot be null")
     private Category category;
     @Valid
     @NotNull(message = "Item type cannot be null")
