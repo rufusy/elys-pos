@@ -5,6 +5,7 @@ import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import com.elys.pos.inventory.v1.mapper.CategoryMapper;
 import com.elys.pos.inventory.v1.repository.CategoryRepository;
 import com.elys.pos.util.v1.ServiceUtil;
+import com.elys.pos.util.v1.exception.InvalidInputException;
 import com.elys.pos.util.v1.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -66,7 +67,10 @@ public class CategoryServiceImpl implements CategoryService {
     private Category internalCreateCategory(Category body) {
         log.debug("createCategory: will try to create a category of name: {}", body.getName());
         CategoryEntity entity = categoryMapper.apiToEntity(body);
-//        entity.setCreatedBy();
+        if (entity.getCreatedBy() == null) {
+            log.debug("createCategory: missing created by field");
+            throw new InvalidInputException("Missing created by field");
+        }
         entity.setCreatedAt(LocalDateTime.now());
         if (body.getParentCategory() != null) {
             entity.setParentCategory(getCategory(body.getParentCategory().getName()));
@@ -85,11 +89,15 @@ public class CategoryServiceImpl implements CategoryService {
     private Category internalUpdateCategory(Category body) {
         log.debug("updateCategory: will try to update a category of name: {}", body.getName());
         CategoryEntity entity = categoryMapper.apiToEntity(body);
+        if (entity.getUpdatedBy() == null) {
+            log.debug("updateCategory: missing updated by field");
+            throw new InvalidInputException("Missing updated by field");
+        }
         CategoryEntity existingCat = categoryRepository.findById(entity.getId())
                 .orElseThrow(() -> new NotFoundException("No Category found with id: " + body.getId()));
         existingCat.setName(entity.getName());
         existingCat.setDescription(entity.getDescription());
-        existingCat.setUpdatedBy(entity.getCreatedBy()); // update this
+        existingCat.setUpdatedBy(entity.getUpdatedBy());
         existingCat.setUpdatedAt(LocalDateTime.now());
         if (body.getParentCategory() != null) {
             existingCat.setParentCategory(getCategory(body.getParentCategory().getName()));

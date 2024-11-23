@@ -1,6 +1,5 @@
 package com.elys.pos.inventory.v1.persistence;
 
-import com.elys.pos.inventory.v1.config.DataJpaTestConfig;
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import com.elys.pos.inventory.v1.filter.CategoryFilterOptions;
 import com.elys.pos.inventory.v1.repository.CategoryRepository;
@@ -11,8 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,11 +24,11 @@ import java.util.UUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@DataJpaTest
-@Import({DataJpaTestConfig.class, CategorySpecification.class})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 public class CategoryEntityTests extends PostgresTestBase {
 
     @Autowired

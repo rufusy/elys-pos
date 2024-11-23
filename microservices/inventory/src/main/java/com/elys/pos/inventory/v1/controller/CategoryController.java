@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -83,7 +84,7 @@ public class CategoryController implements CategoryResource {
 
     @Override
     public ResponseEntity<Mono<Category>> createCategory(Category body) {
-        return ResponseEntity.status(OK).body(categoryService.createCategory(body));
+        return ResponseEntity.status(CREATED).body(categoryService.createCategory(body));
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.elys.pos.inventory.v1.persistence;
 
-import com.elys.pos.inventory.v1.config.DataJpaTestConfig;
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import com.elys.pos.inventory.v1.entity.ItemEntity;
 import com.elys.pos.inventory.v1.entity.ItemTypeEntity;
@@ -15,8 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,11 +27,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@DataJpaTest
-@Import({DataJpaTestConfig.class, ItemSpecification.class})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 public class ItemEntityFiltersTests extends PostgresTestBase {
 
     @Autowired
