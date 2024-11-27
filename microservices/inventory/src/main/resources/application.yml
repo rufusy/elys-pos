@@ -2,7 +2,10 @@ spring.application.name: inventory
 
 server.port: 8085
 
+server.error.include-message: always
+
 app:
+    eureka-server: localhost
     eureka-username: user
     eureka-password: pwd
 
@@ -22,16 +25,24 @@ eureka:
     instance:
         lease-renewal-interval-in-seconds: 5
         lease-expiration-duration-in-seconds: 5
-        hostname: localhost
     client:
-        service-url:
-            defaultZone: http://${app.eureka-username}:${app.eureka-password}@${eureka.instance.hostname}:8761/eureka/
+        service-url.defaultZone: http://${app.eureka-username}:${app.eureka-password}@${app.eureka-server}:8761/eureka/
         initial-instance-info-replication-interval-seconds: 5
         registry-fetch-interval-seconds: 5
 
 logging:
     level:
-        com.elys.pos: debug
         root: info
+        com.elys.pos: debug
 
+management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
+
+---
+spring.config.activate.on-profile: dev
+
+server.port: 8080
+
+app.eureka-server: eureka
+
+spring.datasource.url: jdbc:postgresql://postgres:5432/inventory

@@ -1,15 +1,42 @@
 services:
-  postgres:
-    image: postgres:17
-    container_name: postgres
-    mem_limit: 512m
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=pos_dev
-      - POSTGRES_PASSWORD=pwd
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U pos_dev && echo 'Postgres is ready'" ]
-      interval: 5s
-      timeout: 2s
-      retries: 60
+    postgres:
+        image: postgres:14
+        container_name: postgres
+        mem_limit: 512m
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=password1234
+            - POSTGRES_DB=inventory
+        healthcheck:
+            test: [ "CMD", "pg_isready", "-U", "postgres" ]
+            interval: 5s
+            timeout: 2s
+            retries: 60
+
+    gateway:
+        build: spring-cloud/gateway
+        image: rufusy/ely-pos-gateway
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=dev
+        ports:
+            - "8086:8080"
+
+    eureka:
+        build: spring-cloud/eureka-server
+        image: rufusy/ely-pos-eureka-server
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=dev
+
+    inventory:
+        build: microservices/inventory
+        image: rufusy/ely-pos-inventory
+        mem_limit: 512m
+        environment:
+            - SPRING_PROFILES_ACTIVE=dev
+        depends_on:
+            postgres:
+                condition: service_healthy
