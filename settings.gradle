@@ -2,3 +2,5 @@ rootProject.name = 'elys-pos'
 
 include ':util'
 include ':microservices:inventory'
+include ':spring-cloud:eureka-server'
+include ':spring-cloud:gateway'

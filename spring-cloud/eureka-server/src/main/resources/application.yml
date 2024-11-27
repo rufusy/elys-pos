@@ -1,0 +1,25 @@
+spring.application.name: eureka-server
+
+server.port: 8761
+
+server.error.include-message: always
+
+app:
+    username: user
+    password: pwd
+
+eureka:
+    instance:
+        hostname: localhost
+    client:
+        register-with-eureka: false
+        fetch-registry: false
+        service-url:
+            defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+    server:
+        wait-time-in-ms-when-sync-empty: 0
+        response-cache-update-interval-ms: 5000
+
+management.endpoints.web.exposure.include: "*"
+
+
