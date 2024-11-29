@@ -1,0 +1,20 @@
+server.port: 8085
+
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5433/inventory
+        username: postgres
+        password: '{cipher}a91d430dc17d196f28f5f1e1a4101ac157c412c7b0cdc0f915f65b50048e707e'
+        hikari.initialization-fail-timeout: 60000
+    jpa:
+        hibernate.ddl-auto: create-drop
+        show-sql: true
+        properties:
+            hibernate.format_sql: false
+
+---
+spring.config.activate.on-profile: dev
+
+server.port: 8080
+
+spring.datasource.url: jdbc:postgresql://postgres:5432/inventory
