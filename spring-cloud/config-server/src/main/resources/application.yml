@@ -1,0 +1,18 @@
+spring.profiles.active: native
+
+server.port: 8888
+
+spring.cloud.config.server.native.searchLocations: file:$PWD/config-repo
+
+management.endpoint.health.show-details: "ALWAYS"
+management.endpoints.web.exposure.include: "*"
+
+logging:
+    level:
+        root: info
+        org.springframework.security: DEBUG
+
+---
+spring.config.activate.on-profile: dev
+
+spring.cloud.config.server.native.searchLocations: file:/config-repo

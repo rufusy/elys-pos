@@ -5,9 +5,10 @@ spring:
         properties:
             hibernate.format_sql: true
 
+eureka.client.enabled: false
+spring.cloud.config.enabled: false
+
 logging:
     level:
         org.hibernate.SQL: DEBUG
 #        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-
-eureka.client.enabled: false

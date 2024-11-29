@@ -1,0 +1,45 @@
+server.port: 8086
+
+logging:
+    level:
+        org.springframework.cloud.gateway: trace
+        org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: info
+
+spring.cloud.gateway.routes:
+    - id: inventory
+      uri: lb://inventory
+      predicates:
+          - Path=/v1/inventory/{segment}
+      filters:
+          - SetPath=/v1/{segment}
+
+    - id: eureka-api
+      uri: http://${app.eureka-server}:8761
+      predicates:
+          - Path=/eureka/api/{segment}
+      filters:
+          - SetPath=/eureka/{segment}
+
+    - id: eureka-web
+      uri: http://${app.eureka-server}:8761
+      predicates:
+          - Path=/eureka/web
+      filters:
+          - SetPath=/
+
+    - id: eureka-web-other
+      uri: http://${app.eureka-server}:8761
+      predicates:
+          - Path=/eureka/**
+
+    - id: config-server
+      uri: ${spring.cloud.config.uri}
+      predicates:
+          - Path=/config/**
+      filters:
+          - RewritePath=/config/(?<segment>.*), /$\{segment}
+
+---
+spring.config.activate.on-profile: dev
+
+server.port: 8080

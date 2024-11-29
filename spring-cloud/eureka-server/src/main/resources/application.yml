@@ -1,25 +1,14 @@
-spring.application.name: eureka-server
+spring.config.import: "configserver:"
 
-server.port: 8761
-
-server.error.include-message: always
-
-app:
-    username: user
-    password: pwd
-
-eureka:
-    instance:
-        hostname: localhost
-    client:
-        register-with-eureka: false
-        fetch-registry: false
-        service-url:
-            defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-    server:
-        wait-time-in-ms-when-sync-empty: 0
-        response-cache-update-interval-ms: 5000
-
-management.endpoints.web.exposure.include: "*"
-
-
+spring:
+    application.name: eureka-server
+    cloud.config:
+        fail-fast: true
+        retry:
+            initial-interval: 3000
+            multiplier: 1.3
+            max-interval: 10000
+            max-attempts: 20
+        uri: http://config-server:8888
+        username: ${CONFIG_SERVER_USR}
+        password: ${CONFIG_SERVER_PWD}

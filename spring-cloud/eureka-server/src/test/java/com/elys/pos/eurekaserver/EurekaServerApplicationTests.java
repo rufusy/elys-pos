@@ -16,10 +16,10 @@ class EurekaServerApplicationTests {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
-    @Value("${app.username}")
+    @Value("${app.eureka-username}")
     private String username;
 
-    @Value("${app.password}")
+    @Value("${app.eureka-password}")
     private String password;
 
     @Test
