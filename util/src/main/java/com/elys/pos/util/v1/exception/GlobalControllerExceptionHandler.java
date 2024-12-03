@@ -80,11 +80,11 @@ public class GlobalControllerExceptionHandler {
         return "A database constraint violation occurred.";
     }
 
-    @ExceptionHandler(Throwable.class)
-    @ResponseStatus(INTERNAL_SERVER_ERROR)
-    public HttpErrorInfo handleGenericException(ServerHttpRequest request, Throwable ex) {
-        return creatHttpErrorInfo(INTERNAL_SERVER_ERROR, request, ex.getMessage());
-    }
+//    @ExceptionHandler(Throwable.class)
+//    @ResponseStatus(INTERNAL_SERVER_ERROR)
+//    public HttpErrorInfo handleGenericException(ServerHttpRequest request, Throwable ex) {
+//        return creatHttpErrorInfo(INTERNAL_SERVER_ERROR, request, ex.getMessage());
+//    }
 
     private HttpErrorInfo creatHttpErrorInfo(HttpStatus httpStatus, ServerHttpRequest request, String message) {
         final String path = request.getPath().pathWithinApplication().value();

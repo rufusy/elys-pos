@@ -1,17 +1,42 @@
 server.port: 8086
 
+app:
+    keycloak-server-url: http://localhost
+    keycloak-server-port: 8080
+    keycloak-realm: demo
+
+spring:
+    security.oauth2.resourceserver.jwt:
+        issuer-uri: ${app.keycloak-server-url}:${app.keycloak-server-port}/realms/${app.keycloak-realm}
+        jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+
 logging:
     level:
         org.springframework.cloud.gateway: trace
         org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: info
 
 spring.cloud.gateway.routes:
+#    - id: inventory
+#      uri: lb://inventory
+#      predicates:
+#          - Path=/v1/inventory/{segment}
+#      filters:
+#          - SetPath=/v1/{segment}
+
+#    - id: inventory
+#      uri: lb://inventory
+#      predicates:
+#          - Path=/v1/inventory/{segment:(categories|items|kits)}/{id:.*}  # Matches categories, items, kits, etc.
+#          - Path=/v1/inventory/{segment:(categories|items|kits)}  # Matches without an id
+#      filters:
+#          - SetPath=/v1/{segment}
+
     - id: inventory
       uri: lb://inventory
       predicates:
-          - Path=/v1/inventory/{segment}
+          - Path=/v1/inventory/{segment}/**
       filters:
-          - SetPath=/v1/{segment}
+          - SetPath=/v1/{segment}{/remaining}
 
     - id: eureka-api
       uri: http://${app.eureka-server}:8761
@@ -43,3 +68,5 @@ spring.cloud.gateway.routes:
 spring.config.activate.on-profile: dev
 
 server.port: 8080
+
+app.keycloak-server-url: http://keycloak

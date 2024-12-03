@@ -1,5 +1,6 @@
 package com.elys.pos.inventory.v1.persistence;
 
+import com.elys.pos.inventory.v1.config.TestSecurityConfig;
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import com.elys.pos.inventory.v1.filter.CategoryFilterOptions;
 import com.elys.pos.inventory.v1.repository.CategoryRepository;
@@ -28,7 +29,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {TestSecurityConfig.class})
 public class CategoryEntityTests extends PostgresTestBase {
 
     @Autowired

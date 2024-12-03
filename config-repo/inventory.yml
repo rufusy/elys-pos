@@ -1,6 +1,14 @@
 server.port: 8085
 
+app:
+    keycloak-server-url: http://localhost
+    keycloak-server-port: 8080
+    keycloak-realm: demo
+
 spring:
+    security.oauth2.resourceserver.jwt:
+        issuer-uri: ${app.keycloak-server-url}:${app.keycloak-server-port}/realms/${app.keycloak-realm}
+        jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
     datasource:
         url: jdbc:postgresql://localhost:5433/inventory
         username: postgres
@@ -18,3 +26,6 @@ spring.config.activate.on-profile: dev
 server.port: 8080
 
 spring.datasource.url: jdbc:postgresql://postgres:5432/inventory
+
+app.keycloak-server-url: http://keycloak
+

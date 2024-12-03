@@ -1,4 +1,5 @@
 server.error.include-message: always
+server.forward-headers-strategy: framework
 
 app:
     eureka-server: localhost
