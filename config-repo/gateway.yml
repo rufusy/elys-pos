@@ -1,13 +1,8 @@
 server.port: 8086
 
-app:
-    keycloak-server-url: http://localhost
-    keycloak-server-port: 8080
-    keycloak-realm: demo
-
 spring:
     security.oauth2.resourceserver.jwt:
-        issuer-uri: ${app.keycloak-server-url}:${app.keycloak-server-port}/realms/${app.keycloak-realm}
+        issuer-uri: http://${app.auth-server-base}/realms/${app.auth-server-realm}
         jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
 logging:
@@ -16,44 +11,29 @@ logging:
         org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: info
 
 spring.cloud.gateway.routes:
-#    - id: inventory
-#      uri: lb://inventory
-#      predicates:
-#          - Path=/v1/inventory/{segment}
-#      filters:
-#          - SetPath=/v1/{segment}
-
-#    - id: inventory
-#      uri: lb://inventory
-#      predicates:
-#          - Path=/v1/inventory/{segment:(categories|items|kits)}/{id:.*}  # Matches categories, items, kits, etc.
-#          - Path=/v1/inventory/{segment:(categories|items|kits)}  # Matches without an id
-#      filters:
-#          - SetPath=/v1/{segment}
-
     - id: inventory
       uri: lb://inventory
       predicates:
-          - Path=/v1/inventory/{segment}/**
+          - Path=/v1/inventory/**
       filters:
-          - SetPath=/v1/{segment}{/remaining}
+          - RewritePath=/v1/inventory/(?<segment>.*), /v1/${segment}
 
     - id: eureka-api
-      uri: http://${app.eureka-server}:8761
+      uri: http://${app.eureka-server}
       predicates:
           - Path=/eureka/api/{segment}
       filters:
           - SetPath=/eureka/{segment}
 
     - id: eureka-web
-      uri: http://${app.eureka-server}:8761
+      uri: http://${app.eureka-server}
       predicates:
           - Path=/eureka/web
       filters:
           - SetPath=/
 
     - id: eureka-web-other
-      uri: http://${app.eureka-server}:8761
+      uri: http://${app.eureka-server}
       predicates:
           - Path=/eureka/**
 
@@ -64,9 +44,21 @@ spring.cloud.gateway.routes:
       filters:
           - RewritePath=/config/(?<segment>.*), /$\{segment}
 
+    - id: auth-server-discovery
+      uri: http://${app.auth-server-base}
+      predicates:
+          - Path=/oauth2/.well-known/openid-configuration
+      filters:
+          - SetPath=/realms/${app.auth-server-realm}/.well-known/openid-configuration
+
+    - id: auth-server-token
+      uri: http://${app.auth-server-base}
+      predicates:
+          - Path=/oauth2/token
+      filters:
+          - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/token
+
 ---
 spring.config.activate.on-profile: dev
 
 server.port: 8080
-
-app.keycloak-server-url: http://keycloak

@@ -40,8 +40,11 @@ services:
             - SPRING_PROFILES_ACTIVE=dev
             - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
             - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+            - EUREKA_SERVER=${EUREKA_SERVER}
             - EUREKA_SERVER_USR=${EUREKA_SERVER_USR}
             - EUREKA_SERVER_PWD=${EUREKA_SERVER_PWD}
+            - AUTH_SERVER_BASE=${AUTH_SERVER_BASE}
+            - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
         ports:
             - "8086:8080"
         depends_on:
@@ -70,8 +73,11 @@ services:
             - SPRING_PROFILES_ACTIVE=dev
             - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
             - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+            - EUREKA_SERVER=${EUREKA_SERVER}
             - EUREKA_SERVER_USR=${EUREKA_SERVER_USR}
             - EUREKA_SERVER_PWD=${EUREKA_SERVER_PWD}
+            - AUTH_SERVER_BASE=${AUTH_SERVER_BASE}
+            - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
         depends_on:
             postgres:
                 condition: service_healthy
