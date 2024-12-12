@@ -15,6 +15,43 @@ spring:
         properties:
             hibernate.format_sql: false
 
+# Spring doc with swagger ui and openapi
+springdoc:
+    swagger-ui.path: /v1/openapi/inventory/swagger-ui.html
+    api-docs.path: /v1/openapi/inventory/v3/api-docs
+    packages-to-scan: com.elys.pos.inventory;
+    paths-to-match: /**
+    cache.disabled: true
+#    swagger-ui:
+#        oauth2-redirect-url: /swagger-ui/oauth2-redirect.html
+#        oauth:
+#            clientId: writer
+#            clientSecret: secret-writer
+#            useBasicAuthenticationWithAccessCodeGrant: true
+#    oAuthFlow:
+#        authorizationUrl: https://localhost:8443/oauth2/authorize
+#        tokenUrl: https://localhost:8443/oauth2/token
+
+api:
+    common:
+        version: 1.0.0
+        title: Elys POS API
+        description: Description of the API...
+        termsOfService: MY TERMS OF SERVICE
+        license: MY LICENSE
+        licenseUrl: MY LICENSE URL
+        externalDocDesc: MY WIKI PAGE
+        externalDocUrl: MY WIKI URL
+        contact:
+            name: NAME OF CONTACT
+            url: URL TO CONTACT
+            email: contact@mail.com
+    responseCodes:
+        ok.description: OK
+        badRequest.description: Bad Request, invalid format of the request. See response message for more information
+        notFound.description: Not found, the specified id does not exist
+        unprocessableEntity.description: Unprocessable entity, input parameters caused the processing to fail. See response message for more information
+
 ---
 spring.config.activate.on-profile: dev
 

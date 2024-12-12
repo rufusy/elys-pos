@@ -18,6 +18,11 @@ spring.cloud.gateway.routes:
       filters:
           - RewritePath=/v1/inventory/(?<segment>.*), /v1/${segment}
 
+    - id: inventory-swagger-ui
+      uri: lb://inventory
+      predicates:
+          - Path=/v1/openapi/inventory/**
+
     - id: eureka-api
       uri: http://${app.eureka-server}
       predicates:

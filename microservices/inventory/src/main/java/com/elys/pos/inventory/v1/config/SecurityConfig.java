@@ -20,8 +20,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/headerrouting/**").permitAll()
-                        .pathMatchers("/openapi/**").permitAll()
-                        .pathMatchers("/webjars/**").permitAll()
+                        .pathMatchers("/v1/openapi/**").permitAll()
                         .pathMatchers("/actuator/**").permitAll()
                         .pathMatchers(GET, "/v1/categories/**").hasAuthority("SCOPE_category:read")
                         .pathMatchers(POST, "/v1/categories/**").hasAuthority("SCOPE_category:create")
