@@ -63,6 +63,13 @@ spring.cloud.gateway.routes:
       filters:
           - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/token
 
+    - id: auth-server-authorize
+      uri: http://${app.auth-server-base}
+      predicates:
+          - Path=/oauth2/authorize
+      filters:
+          - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/auth
+
 ---
 spring.config.activate.on-profile: dev
 

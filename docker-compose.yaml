@@ -50,6 +50,8 @@ services:
         depends_on:
             config-server:
                 condition: service_healthy
+#        extra_hosts:
+#            - "keycloak:127.0.0.1"
 
     eureka:
         build: spring-cloud/eureka-server
@@ -83,6 +85,8 @@ services:
                 condition: service_healthy
             config-server:
                 condition: service_healthy
+#        extra_hosts:
+#            - "keycloak:127.0.0.1"
 
     keycloak-db:
         image: postgres:15-alpine

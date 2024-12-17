@@ -22,15 +22,15 @@ springdoc:
     packages-to-scan: com.elys.pos.inventory;
     paths-to-match: /**
     cache.disabled: true
-#    swagger-ui:
-#        oauth2-redirect-url: /swagger-ui/oauth2-redirect.html
-#        oauth:
-#            clientId: writer
-#            clientSecret: secret-writer
-#            useBasicAuthenticationWithAccessCodeGrant: true
-#    oAuthFlow:
-#        authorizationUrl: https://localhost:8443/oauth2/authorize
-#        tokenUrl: https://localhost:8443/oauth2/token
+    swagger-ui:
+        oauth2-redirect-url: /swagger-ui/oauth2-redirect.html
+        oauth:
+            clientId: writer
+            clientSecret: dB44oX48KZyTURjtCZwJ0eA6sylNQkZe
+            useBasicAuthenticationWithAccessCodeGrant: true
+    oAuthFlow:
+        authorizationUrl: http://localhost:8086/oauth2/authorize
+        tokenUrl: http://localhost:8086/oauth2/token
 
 api:
     common:
