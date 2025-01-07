@@ -2,8 +2,7 @@ server.port: 8086
 
 spring:
     security.oauth2.resourceserver.jwt:
-        issuer-uri: http://${app.auth-server-base}/realms/${app.auth-server-realm}
-        jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+        jwk-set-uri: http://keycloak:8080/realms/${app.auth-server-realm}/protocol/openid-connect/certs
 
 logging:
     level:
@@ -49,26 +48,10 @@ spring.cloud.gateway.routes:
       filters:
           - RewritePath=/config/(?<segment>.*), /$\{segment}
 
-    - id: auth-server-discovery
+    - id: auth-server
       uri: http://${app.auth-server-base}
       predicates:
-          - Path=/oauth2/.well-known/openid-configuration
-      filters:
-          - SetPath=/realms/${app.auth-server-realm}/.well-known/openid-configuration
-
-    - id: auth-server-token
-      uri: http://${app.auth-server-base}
-      predicates:
-          - Path=/oauth2/token
-      filters:
-          - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/token
-
-    - id: auth-server-authorize
-      uri: http://${app.auth-server-base}
-      predicates:
-          - Path=/oauth2/authorize
-      filters:
-          - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/auth
+          - Path=/realms/**
 
 ---
 spring.config.activate.on-profile: dev
