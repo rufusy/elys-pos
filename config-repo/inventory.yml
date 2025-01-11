@@ -2,7 +2,7 @@ server.port: 8085
 
 spring:
     security.oauth2.resourceserver.jwt:
-        jwk-set-uri: http://keycloak:8080/realms/${app.auth-server-realm}/protocol/openid-connect/certs
+        jwk-set-uri: http://${app.auth-server-base}/realms/${app.auth-server-realm}/protocol/openid-connect/certs
     datasource:
         url: jdbc:postgresql://localhost:5433/inventory
         username: postgres
