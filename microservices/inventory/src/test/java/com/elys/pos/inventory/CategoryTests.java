@@ -1,5 +1,6 @@
 package com.elys.pos.inventory;
 
+import com.elys.pos.inventory.v1.config.TestSecurityConfig;
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import com.elys.pos.inventory.v1.persistence.PostgresTestBase;
 import com.elys.pos.inventory.v1.repository.CategoryRepository;
@@ -24,7 +25,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {TestSecurityConfig.class})
 class CategoryTests extends PostgresTestBase {
 
     @Autowired

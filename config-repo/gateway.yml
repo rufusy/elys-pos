@@ -1,5 +1,9 @@
 server.port: 8086
 
+spring:
+    security.oauth2.resourceserver.jwt:
+        jwk-set-uri: http://keycloak:8080/realms/${app.auth-server-realm}/protocol/openid-connect/certs
+
 logging:
     level:
         org.springframework.cloud.gateway: trace
@@ -9,26 +13,31 @@ spring.cloud.gateway.routes:
     - id: inventory
       uri: lb://inventory
       predicates:
-          - Path=/v1/inventory/{segment}
+          - Path=/v1/inventory/**
       filters:
-          - SetPath=/v1/{segment}
+          - RewritePath=/v1/inventory/(?<segment>.*), /v1/${segment}
+
+    - id: inventory-swagger-ui
+      uri: lb://inventory
+      predicates:
+          - Path=/v1/openapi/inventory/**
 
     - id: eureka-api
-      uri: http://${app.eureka-server}:8761
+      uri: http://${app.eureka-server}
       predicates:
           - Path=/eureka/api/{segment}
       filters:
           - SetPath=/eureka/{segment}
 
     - id: eureka-web
-      uri: http://${app.eureka-server}:8761
+      uri: http://${app.eureka-server}
       predicates:
           - Path=/eureka/web
       filters:
           - SetPath=/
 
     - id: eureka-web-other
-      uri: http://${app.eureka-server}:8761
+      uri: http://${app.eureka-server}
       predicates:
           - Path=/eureka/**
 
@@ -39,6 +48,41 @@ spring.cloud.gateway.routes:
       filters:
           - RewritePath=/config/(?<segment>.*), /$\{segment}
 
+    - id: auth-server-discovery
+      uri: ${app.auth-server-base}
+      predicates:
+          - Path=/oauth2/.well-known/openid-configuration
+      filters:
+          - SetPath=/realms/${app.auth-server-realm}/.well-known/openid-configuration
+
+    - id: auth-server-token
+      uri: ${app.auth-server-base}
+      predicates:
+          - Path=/oauth2/token
+      filters:
+          - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/token
+
+    - id: auth-server-auth
+      uri: ${app.auth-server-base}
+      predicates:
+          - Path=/oauth2/auth
+      filters:
+          - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/auth
+
+    - id: auth-server-realms
+      uri: ${app.auth-server-base}
+      predicates:
+          - Path=/realms/**
+
+    - id: auth-server-assets
+      uri: ${app.auth-server-base}
+      predicates:
+          - Path=/resources/eduzl/**
+
+    - id: auth-server-robots
+      uri: ${app.auth-server-base}
+      predicates:
+          - Path=/robots.txt
 ---
 spring.config.activate.on-profile: dev
 

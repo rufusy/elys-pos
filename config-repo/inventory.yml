@@ -1,6 +1,8 @@
 server.port: 8085
 
 spring:
+    security.oauth2.resourceserver.jwt:
+        jwk-set-uri: ${app.auth-server-base}/realms/${app.auth-server-realm}/protocol/openid-connect/certs
     datasource:
         url: jdbc:postgresql://localhost:5433/inventory
         username: postgres
@@ -11,6 +13,42 @@ spring:
         show-sql: true
         properties:
             hibernate.format_sql: false
+
+springdoc:
+    swagger-ui.path: /v1/openapi/inventory/swagger-ui.html
+    api-docs.path: /v1/openapi/inventory/v3/api-docs
+    packages-to-scan: com.elys.pos.inventory;
+    paths-to-match: /**
+    cache.disabled: true
+    swagger-ui:
+        oauth2-redirect-url: /swagger-ui/oauth2-redirect.html
+        oauth:
+            clientId: writer
+            clientSecret: dB44oX48KZyTURjtCZwJ0eA6sylNQkZe
+            useBasicAuthenticationWithAccessCodeGrant: true
+    oAuthFlow:
+        authorizationUrl: ${SWAGGER_AUTH_URL}
+        tokenUrl: ${SWAGGER_TOKEN_URL}
+
+api:
+    common:
+        version: 1.0.0
+        title: Elys POS API
+        description: Description of the API...
+        termsOfService: MY TERMS OF SERVICE
+        license: MY LICENSE
+        licenseUrl: MY LICENSE URL
+        externalDocDesc: MY WIKI PAGE
+        externalDocUrl: MY WIKI URL
+        contact:
+            name: NAME OF CONTACT
+            url: URL TO CONTACT
+            email: contact@mail.com
+    responseCodes:
+        ok.description: OK
+        badRequest.description: Bad Request, invalid format of the request. See response message for more information
+        notFound.description: Not found, the specified id does not exist
+        unprocessableEntity.description: Unprocessable entity, input parameters caused the processing to fail. See response message for more information
 
 ---
 spring.config.activate.on-profile: dev

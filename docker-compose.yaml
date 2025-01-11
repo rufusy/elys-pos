@@ -40,8 +40,13 @@ services:
             - SPRING_PROFILES_ACTIVE=dev
             - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
             - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+            - EUREKA_SERVER=${EUREKA_SERVER}
             - EUREKA_SERVER_USR=${EUREKA_SERVER_USR}
             - EUREKA_SERVER_PWD=${EUREKA_SERVER_PWD}
+            - AUTH_SERVER_BASE=${AUTH_SERVER_BASE}
+            - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
+            - AUTH_SERVER_ISS=${AUTH_SERVER_ISS}
+            - AUTH_SERVER_JWKS_URI=${AUTH_SERVER_JWKS_URI}
         ports:
             - "8086:8080"
         depends_on:
@@ -70,10 +75,47 @@ services:
             - SPRING_PROFILES_ACTIVE=dev
             - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
             - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+            - EUREKA_SERVER=${EUREKA_SERVER}
             - EUREKA_SERVER_USR=${EUREKA_SERVER_USR}
             - EUREKA_SERVER_PWD=${EUREKA_SERVER_PWD}
+            - AUTH_SERVER_BASE=${AUTH_SERVER_BASE}
+            - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
+            - AUTH_SERVER_ISS=${AUTH_SERVER_ISS}
+            - AUTH_SERVER_JWKS_URI=${AUTH_SERVER_JWKS_URI}
+            - SWAGGER_AUTH_URL=${SWAGGER_AUTH_URL}
+            - SWAGGER_TOKEN_URL=${SWAGGER_TOKEN_URL}
         depends_on:
             postgres:
                 condition: service_healthy
             config-server:
                 condition: service_healthy
+
+    keycloak-db:
+        image: postgres:15-alpine
+        environment:
+            POSTGRES_DB: keycloak
+            POSTGRES_USER: keycloak
+            POSTGRES_PASSWORD: keycloak
+        volumes:
+            - keycloak-postgres_data:/var/lib/postgresql/data
+
+    keycloak:
+        image: quay.io/keycloak/keycloak:22.0.0
+        container_name: keycloak-dev
+        environment:
+            KC_DB: postgres
+            KC_DB_URL_DATABASE: keycloak
+            KC_DB_URL_HOST: keycloak-db
+            KC_DB_URL_PORT: 5432
+            KC_DB_USERNAME: keycloak
+            KC_DB_PASSWORD: keycloak
+            KEYCLOAK_ADMIN: admin
+            KEYCLOAK_ADMIN_PASSWORD: admin
+        command: start-dev
+        ports:
+            - "8087:8080"
+        depends_on:
+            - keycloak-db
+
+volumes:
+    keycloak-postgres_data:

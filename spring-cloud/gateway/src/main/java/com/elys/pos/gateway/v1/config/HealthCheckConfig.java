@@ -1,4 +1,4 @@
-package com.elys.pos.gateway;
+package com.elys.pos.gateway.v1.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
