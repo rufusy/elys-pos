@@ -7,6 +7,8 @@ app:
     eureka-password: ${EUREKA_SERVER_PWD}
     auth-server-base: ${AUTH_SERVER_BASE}
     auth-server-realm: ${AUTH_SERVER_REALM}
+    auth-server-iss: ${AUTH_SERVER_ISS}
+    auth-server-jwks-uri: ${AUTH_SERVER_JWKS_URI}
 
 eureka:
     instance:

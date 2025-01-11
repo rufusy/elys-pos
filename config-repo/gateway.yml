@@ -49,38 +49,38 @@ spring.cloud.gateway.routes:
           - RewritePath=/config/(?<segment>.*), /$\{segment}
 
     - id: auth-server-discovery
-      uri: http://${app.auth-server-base}
+      uri: ${app.auth-server-base}
       predicates:
           - Path=/oauth2/.well-known/openid-configuration
       filters:
           - SetPath=/realms/${app.auth-server-realm}/.well-known/openid-configuration
 
     - id: auth-server-token
-      uri: http://${app.auth-server-base}
+      uri: ${app.auth-server-base}
       predicates:
           - Path=/oauth2/token
       filters:
           - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/token
 
     - id: auth-server-auth
-      uri: http://${app.auth-server-base}
+      uri: ${app.auth-server-base}
       predicates:
           - Path=/oauth2/auth
       filters:
           - SetPath=/realms/${app.auth-server-realm}/protocol/openid-connect/auth
 
     - id: auth-server-realms
-      uri: http://${app.auth-server-base}
+      uri: ${app.auth-server-base}
       predicates:
           - Path=/realms/**
 
     - id: auth-server-assets
-      uri: http://${app.auth-server-base}
+      uri: ${app.auth-server-base}
       predicates:
           - Path=/resources/eduzl/**
 
     - id: auth-server-robots
-      uri: http://${app.auth-server-base}
+      uri: ${app.auth-server-base}
       predicates:
           - Path=/robots.txt
 ---

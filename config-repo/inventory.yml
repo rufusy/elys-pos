@@ -2,7 +2,7 @@ server.port: 8085
 
 spring:
     security.oauth2.resourceserver.jwt:
-        jwk-set-uri: http://${app.auth-server-base}/realms/${app.auth-server-realm}/protocol/openid-connect/certs
+        jwk-set-uri: ${app.auth-server-base}/realms/${app.auth-server-realm}/protocol/openid-connect/certs
     datasource:
         url: jdbc:postgresql://localhost:5433/inventory
         username: postgres
@@ -27,8 +27,8 @@ springdoc:
             clientSecret: dB44oX48KZyTURjtCZwJ0eA6sylNQkZe
             useBasicAuthenticationWithAccessCodeGrant: true
     oAuthFlow:
-        authorizationUrl: http://localhost:8086/realms/${app.auth-server-realm}/protocol/openid-connect/auth
-        tokenUrl: http://localhost:8086/realms/${app.auth-server-realm}/protocol/openid-connect/token
+        authorizationUrl: ${SWAGGER_AUTH_URL}
+        tokenUrl: ${SWAGGER_TOKEN_URL}
 
 api:
     common:

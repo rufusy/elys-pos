@@ -45,6 +45,8 @@ services:
             - EUREKA_SERVER_PWD=${EUREKA_SERVER_PWD}
             - AUTH_SERVER_BASE=${AUTH_SERVER_BASE}
             - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
+            - AUTH_SERVER_ISS=${AUTH_SERVER_ISS}
+            - AUTH_SERVER_JWKS_URI=${AUTH_SERVER_JWKS_URI}
         ports:
             - "8086:8080"
         depends_on:
@@ -78,6 +80,10 @@ services:
             - EUREKA_SERVER_PWD=${EUREKA_SERVER_PWD}
             - AUTH_SERVER_BASE=${AUTH_SERVER_BASE}
             - AUTH_SERVER_REALM=${AUTH_SERVER_REALM}
+            - AUTH_SERVER_ISS=${AUTH_SERVER_ISS}
+            - AUTH_SERVER_JWKS_URI=${AUTH_SERVER_JWKS_URI}
+            - SWAGGER_AUTH_URL=${SWAGGER_AUTH_URL}
+            - SWAGGER_TOKEN_URL=${SWAGGER_TOKEN_URL}
         depends_on:
             postgres:
                 condition: service_healthy
