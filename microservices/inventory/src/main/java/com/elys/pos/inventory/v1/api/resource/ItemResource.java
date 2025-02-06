@@ -1,6 +1,8 @@
 package com.elys.pos.inventory.v1.api.resource;
 
-import com.elys.pos.inventory.v1.api.model.Item;
+import com.elys.pos.inventory.v1.api.model.item.CreateItem;
+import com.elys.pos.inventory.v1.api.model.item.Item;
+import com.elys.pos.inventory.v1.api.model.item.UpdateItem;
 import jakarta.validation.Valid;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.data.domain.Page;
@@ -46,7 +48,7 @@ public interface ItemResource {
      * @return a JSON representation of the newly created item
      */
     @PostMapping(value = "/items", consumes = "application/json", produces = "application/json")
-    ResponseEntity<Mono<Item>> createItem(@RequestBody @Valid Item body);
+    ResponseEntity<Mono<Item>> createItem(@RequestBody @Valid CreateItem body);
 
     /**
      * Sample usage:
@@ -56,7 +58,7 @@ public interface ItemResource {
      * @return a JSON representation of the updated item
      */
     @PutMapping(value = "/items", consumes = "application/json", produces = "application/json")
-    ResponseEntity<Mono<Item>> updateItem(@RequestBody @Valid Item body);
+    ResponseEntity<Mono<Item>> updateItem(@RequestBody @Valid UpdateItem body);
 
     /**
      * Sample usage:

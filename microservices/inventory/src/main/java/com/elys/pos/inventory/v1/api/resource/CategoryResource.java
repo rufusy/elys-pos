@@ -1,6 +1,8 @@
 package com.elys.pos.inventory.v1.api.resource;
 
-import com.elys.pos.inventory.v1.api.model.Category;
+import com.elys.pos.inventory.v1.api.model.category.Category;
+import com.elys.pos.inventory.v1.api.model.category.CreateCategory;
+import com.elys.pos.inventory.v1.api.model.category.UpdateCategory;
 import jakarta.validation.Valid;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.data.domain.Page;
@@ -47,7 +49,7 @@ public interface CategoryResource {
      * @return a JSON representation of the newly created category
      */
     @PostMapping(value = "/categories", consumes = "application/json", produces = "application/json")
-    ResponseEntity<Mono<Category>> createCategory(@RequestBody @Valid Category body);
+    ResponseEntity<Mono<Category>> createCategory(@RequestBody @Valid CreateCategory body);
 
     /**
      * Sample usage:
@@ -57,7 +59,7 @@ public interface CategoryResource {
      * @return a JSON representation of the updated category
      */
     @PutMapping(value = "/categories", consumes = "application/json", produces = "application/json")
-    ResponseEntity<Mono<Category>> updateCategory(@RequestBody @Valid Category body);
+    ResponseEntity<Mono<Category>> updateCategory(@RequestBody @Valid UpdateCategory body);
 
     /**
      * Sample usage:

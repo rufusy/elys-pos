@@ -23,5 +23,5 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, UUID>,
     @Modifying
     @Transactional
     @Query("UPDATE CategoryEntity e SET e.deleted = true, e.deletedBy = :deletedBy, e.deletedAt = :deletedAt WHERE e.id = :id")
-    void flagAsDeleted(@Param("id") UUID id, @Param("deletedBy") UUID deletedBy, @Param("deletedAt") LocalDateTime deletedAt);
+    void flagAsDeleted(@Param("id") UUID id, @Param("deletedBy") String deletedBy, @Param("deletedAt") LocalDateTime deletedAt);
 }

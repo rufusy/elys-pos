@@ -1,8 +1,6 @@
-package com.elys.pos.inventory.v1.api.model;
+package com.elys.pos.inventory.v1.api.model.itemType;
 
 import lombok.*;
-
-import java.util.UUID;
 
 @Getter
 @Setter

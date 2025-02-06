@@ -21,19 +21,19 @@ public class BaseEntity {
     private Integer version;
 
     @Column(updatable = false, nullable = false)
-    private UUID createdBy;
+    private String createdBy;
 
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
     @Column(insertable = false)
-    private UUID updatedBy;
+    private String updatedBy;
 
     @Column(insertable = false)
     private LocalDateTime updatedAt;
 
     @Column(insertable = false)
-    private UUID deletedBy;
+    private String deletedBy;
 
     @Column(insertable = false)
     private LocalDateTime deletedAt;

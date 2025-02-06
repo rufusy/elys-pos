@@ -1,11 +1,15 @@
 package com.elys.pos.inventory.v1.service;
 
-import com.elys.pos.inventory.v1.api.model.Item;
+import com.elys.pos.inventory.v1.api.model.item.CreateItem;
+import com.elys.pos.inventory.v1.api.model.item.Item;
+import com.elys.pos.inventory.v1.api.model.item.UpdateItem;
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import com.elys.pos.inventory.v1.entity.ItemEntity;
 import com.elys.pos.inventory.v1.entity.ItemTypeEntity;
 import com.elys.pos.inventory.v1.entity.StockTypeEntity;
-import com.elys.pos.inventory.v1.mapper.ItemMapper;
+import com.elys.pos.inventory.v1.mapper.item.CreateItemMapper;
+import com.elys.pos.inventory.v1.mapper.item.ItemMapper;
+import com.elys.pos.inventory.v1.mapper.item.UpdateItemMapper;
 import com.elys.pos.inventory.v1.repository.CategoryRepository;
 import com.elys.pos.inventory.v1.repository.ItemRepository;
 import com.elys.pos.inventory.v1.repository.ItemTypeRepository;
@@ -17,6 +21,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -34,24 +40,25 @@ public class ItemServiceImpl implements ItemService {
     private final StockTypeRepository stockTypeRepository;
     private final ItemTypeRepository itemTypeRepository;
     private final ItemMapper itemMapper;
+    private final CreateItemMapper createItemMapper;
+    private final UpdateItemMapper updateItemMapper;
     @Qualifier("jdbcScheduler")
     private final Scheduler jdbcScheduler;
-    @Qualifier("publishEventScheduler")
-    private final Scheduler publishEventScheduler;
     private final ServiceUtil serviceUtil;
 
     public ItemServiceImpl(ItemRepository itemRepository, CategoryRepository categoryRepository,
                            StockTypeRepository stockTypeRepository, ItemTypeRepository itemTypeRepository,
-                           ItemMapper itemMapper, Scheduler jdbcScheduler, Scheduler publishEventScheduler,
-                           ServiceUtil serviceUtil) {
+                           ItemMapper itemMapper, Scheduler jdbcScheduler,
+                           ServiceUtil serviceUtil, CreateItemMapper createItemMapper, UpdateItemMapper updateItemMapper) {
         this.itemRepository = itemRepository;
         this.categoryRepository = categoryRepository;
         this.stockTypeRepository = stockTypeRepository;
         this.itemTypeRepository = itemTypeRepository;
         this.itemMapper = itemMapper;
         this.jdbcScheduler = jdbcScheduler;
-        this.publishEventScheduler = publishEventScheduler;
         this.serviceUtil = serviceUtil;
+        this.createItemMapper = createItemMapper;
+        this.updateItemMapper = updateItemMapper;
     }
 
     @Transactional(readOnly = true)
@@ -64,11 +71,13 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public Mono<Item> getItemById(String itemId) {
-        return Mono.fromCallable(() -> internalGetItemById(itemId)).subscribeOn(jdbcScheduler);
+        return getUsernameFromToken()
+                .flatMap(username -> Mono.fromCallable(() -> internalGetItemById(itemId, username))
+                        .subscribeOn(jdbcScheduler));
     }
 
-    private Item internalGetItemById(String itemId) {
-        log.debug("getItem: will try to get an item of id: {}", itemId);
+    private Item internalGetItemById(String itemId, String username) {
+        log.debug("getItem: user: {}, will try to get an item of id: {}", username, itemId);
         ItemEntity entity = itemRepository.findById(UUID.fromString(itemId))
                 .orElseThrow(() -> new NotFoundException("No item found for itemId: " + itemId));
         return setServiceAddress(itemMapper.entityToApi(entity));
@@ -76,13 +85,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public Mono<Item> createItem(Item body) {
-        return Mono.fromCallable(() -> internalCreateItem(body)).subscribeOn(jdbcScheduler);
+    public Mono<Item> createItem(CreateItem body) {
+        return getUsernameFromToken()
+                .flatMap(username -> Mono.fromCallable(() -> internalCreateItem(body, username))
+                        .subscribeOn(jdbcScheduler));
     }
 
-    private Item internalCreateItem(Item body) {
-        log.debug("createItem: will try to create an item of name: {}", body.getName());
-        ItemEntity itemEntity = itemMapper.apiToEntity(body);
+    private Item internalCreateItem(CreateItem body, String username) {
+        log.debug("createItem: user: {}, will try to create an item of name: {}", username, body.getName());
+        ItemEntity itemEntity = createItemMapper.apiToEntity(body);
+        itemEntity.setCreatedBy(username);
         itemEntity.setCreatedAt(LocalDateTime.now());
         itemEntity.setCategory(this.getCategory(body.getCategory().getName()));
         itemEntity.setItemType(this.getItemType(body.getItemType().getName()));
@@ -94,13 +106,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public Mono<Item> updateItem(Item body) {
-        return Mono.fromCallable(() -> internalUpdateItem(body)).subscribeOn(jdbcScheduler);
+    public Mono<Item> updateItem(UpdateItem body) {
+        return getUsernameFromToken()
+                .flatMap(username -> Mono.fromCallable(() -> internalUpdateItem(body, username))
+                        .subscribeOn(jdbcScheduler));
     }
 
-    private Item internalUpdateItem(Item body) {
-        log.debug("updateItem: will try to update an item of name: {}", body.getName());
-        ItemEntity itemEntity = itemMapper.apiToEntity(body);
+    private Item internalUpdateItem(UpdateItem body, String username) {
+        log.debug("updateItem: user: {}, will try to update an item of name: {}", username, body.getName());
+        ItemEntity itemEntity = updateItemMapper.apiToEntity(body);
         ItemEntity existingItemEntity = itemRepository.findById(itemEntity.getId())
                 .orElseThrow(() -> new NotFoundException("No Item found with id: " + body.getId()));
         existingItemEntity.setName(itemEntity.getName());
@@ -113,7 +127,7 @@ public class ItemServiceImpl implements ItemService {
         existingItemEntity.setSellingPrice(itemEntity.getSellingPrice());
         existingItemEntity.setSerialized(itemEntity.isSerialized());
         existingItemEntity.setBatchTracked(itemEntity.isBatchTracked());
-        existingItemEntity.setUpdatedBy(itemEntity.getUpdatedBy());
+        existingItemEntity.setUpdatedBy(username);
         existingItemEntity.setUpdatedAt(LocalDateTime.now());
         existingItemEntity.setCategory(this.getCategory(body.getCategory().getName()));
         existingItemEntity.setItemType(this.getItemType(body.getItemType().getName()));
@@ -126,14 +140,16 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public Mono<Void> deleteItem(String itemId) {
-        return Mono.fromRunnable(() -> internalDeleteItem(itemId)).subscribeOn(jdbcScheduler).then();
+        return getUsernameFromToken()
+                .flatMap(username -> Mono.fromRunnable(() -> internalDeleteItem(itemId, username))
+                        .subscribeOn(jdbcScheduler).then());
     }
 
-    private void internalDeleteItem(String itemId) {
-        log.debug("deleteItem: will try to delete an item with id: {}", itemId);
-        ItemEntity entity = itemRepository.findById(UUID.fromString(itemId))
+    private void internalDeleteItem(String itemId, String username) {
+        log.debug("deleteItem: user: {}, will try to delete an item with id: {}", username, itemId);
+        itemRepository.findById(UUID.fromString(itemId))
                 .orElseThrow(() -> new NotFoundException("No Item found with id: " + itemId));
-        itemRepository.flagAsDeleted(UUID.fromString(itemId), entity.getCreatedBy(), LocalDateTime.now());
+        itemRepository.flagAsDeleted(UUID.fromString(itemId), username, LocalDateTime.now());
         log.debug("deleteItem: deleted item with id: {}", itemId);
     }
 
@@ -155,5 +171,11 @@ public class ItemServiceImpl implements ItemService {
     private Item setServiceAddress(Item e) {
         e.setServiceAddress(serviceUtil.getServiceAddress());
         return e;
+    }
+
+    private Mono<String> getUsernameFromToken() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> (Jwt) ctx.getAuthentication().getPrincipal())
+                .map(jwt -> jwt.getClaimAsString("preferred_username"));
     }
 }

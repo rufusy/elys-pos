@@ -1,17 +1,22 @@
 package com.elys.pos.inventory.v1.service;
 
-import com.elys.pos.inventory.v1.api.model.Category;
+import com.elys.pos.inventory.v1.api.model.category.Category;
+import com.elys.pos.inventory.v1.api.model.category.CreateCategory;
+import com.elys.pos.inventory.v1.api.model.category.UpdateCategory;
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
-import com.elys.pos.inventory.v1.mapper.CategoryMapper;
+import com.elys.pos.inventory.v1.mapper.category.CategoryMapper;
+import com.elys.pos.inventory.v1.mapper.category.CreateCategoryMapper;
+import com.elys.pos.inventory.v1.mapper.category.UpdateCategoryMapper;
 import com.elys.pos.inventory.v1.repository.CategoryRepository;
 import com.elys.pos.util.v1.ServiceUtil;
-import com.elys.pos.util.v1.exception.InvalidInputException;
 import com.elys.pos.util.v1.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -26,14 +31,18 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final CreateCategoryMapper createCategoryMapper;
+    private final UpdateCategoryMapper updateCategoryMapper;
     @Qualifier("jdbcScheduler")
     private final Scheduler jdbcScheduler;
     private final ServiceUtil serviceUtil;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, Scheduler jdbcScheduler,
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, CreateCategoryMapper createCategoryMapper, UpdateCategoryMapper updateCategoryMapper, Scheduler jdbcScheduler,
                                ServiceUtil serviceUtil) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
+        this.createCategoryMapper = createCategoryMapper;
+        this.updateCategoryMapper = updateCategoryMapper;
         this.jdbcScheduler = jdbcScheduler;
         this.serviceUtil = serviceUtil;
     }
@@ -48,11 +57,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     @Override
     public Mono<Category> getCategoryById(String categoryId) {
-        return Mono.fromCallable(() -> internalGetCategoryById(categoryId)).subscribeOn(jdbcScheduler);
+        return getUsernameFromToken()
+                .flatMap(username -> Mono.fromCallable(() -> internalGetCategoryById(categoryId, username))
+                        .subscribeOn(jdbcScheduler));
     }
 
-    private Category internalGetCategoryById(String categoryId) {
-        log.debug("getCategory: will try to get a category of id: {}", categoryId);
+    private Category internalGetCategoryById(String categoryId, String username ) {
+        log.debug("getCategory: user: {}, will try to get a category of id: {}", username, categoryId);
         CategoryEntity entity = categoryRepository.findById(UUID.fromString(categoryId))
                 .orElseThrow(() -> new NotFoundException("No category found for categoryId: " + categoryId));
         return setServiceAddress(categoryMapper.entityToApi(entity));
@@ -60,44 +71,41 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public Mono<Category> createCategory(Category body) {
-        return Mono.fromCallable(() -> internalCreateCategory(body)).subscribeOn(jdbcScheduler);
+    public Mono<Category> createCategory(CreateCategory body) {
+        return getUsernameFromToken()
+                .flatMap(username -> Mono.fromCallable(() -> internalCreateCategory(body, username))
+                        .subscribeOn(jdbcScheduler));
     }
 
-    private Category internalCreateCategory(Category body) {
-        log.debug("createCategory: will try to create a category of name: {}", body.getName());
-        CategoryEntity entity = categoryMapper.apiToEntity(body);
-        if (entity.getCreatedBy() == null) {
-            log.debug("createCategory: missing created by field");
-            throw new InvalidInputException("Missing created by field");
-        }
+    private Category internalCreateCategory(CreateCategory body, String username) {
+        log.debug("createCategory: user: {}, will try to create a category of name: {}", username, body.getName());
+        CategoryEntity entity = createCategoryMapper.apiToEntity(body);
+        entity.setCreatedBy(username);
         entity.setCreatedAt(LocalDateTime.now());
         if (body.getParentCategory() != null) {
             entity.setParentCategory(getCategory(body.getParentCategory().getName()));
         }
-        CategoryEntity saved = categoryRepository.save(entity);
+        CategoryEntity savedEntity = categoryRepository.save(entity);
         log.debug("createCategory: created a category of name: {}", body.getName());
-        return setServiceAddress(categoryMapper.entityToApi(saved));
+        return setServiceAddress(categoryMapper.entityToApi(savedEntity));
     }
 
     @Transactional
     @Override
-    public Mono<Category> updateCategory(Category body) {
-        return Mono.fromCallable(() -> internalUpdateCategory(body)).subscribeOn(jdbcScheduler);
+    public Mono<Category> updateCategory(UpdateCategory body) {
+        return getUsernameFromToken()
+                .flatMap(username -> Mono.fromCallable(() -> internalUpdateCategory(body, username))
+                        .subscribeOn(jdbcScheduler));
     }
 
-    private Category internalUpdateCategory(Category body) {
-        log.debug("updateCategory: will try to update a category of name: {}", body.getName());
-        CategoryEntity entity = categoryMapper.apiToEntity(body);
-        if (entity.getUpdatedBy() == null) {
-            log.debug("updateCategory: missing updated by field");
-            throw new InvalidInputException("Missing updated by field");
-        }
+    private Category internalUpdateCategory(UpdateCategory body, String username) {
+        log.debug("updateCategory: user: {}, will try to update a category of name: {}", username, body.getName());
+        CategoryEntity entity = updateCategoryMapper.apiToEntity(body);
         CategoryEntity existingCat = categoryRepository.findById(entity.getId())
                 .orElseThrow(() -> new NotFoundException("No Category found with id: " + body.getId()));
         existingCat.setName(entity.getName());
         existingCat.setDescription(entity.getDescription());
-        existingCat.setUpdatedBy(entity.getUpdatedBy());
+        existingCat.setUpdatedBy(username);
         existingCat.setUpdatedAt(LocalDateTime.now());
         if (body.getParentCategory() != null) {
             existingCat.setParentCategory(getCategory(body.getParentCategory().getName()));
@@ -109,27 +117,35 @@ public class CategoryServiceImpl implements CategoryService {
         return setServiceAddress(categoryMapper.entityToApi(updated));
     }
 
+    @Transactional
+    @Override
+    public Mono<Void> deleteCategory(String categoryId) {
+        return getUsernameFromToken()
+                .flatMap(username -> Mono.fromRunnable(() -> internalDeleteCategory(categoryId, username))
+                        .subscribeOn(jdbcScheduler).then());
+    }
+
+    private void internalDeleteCategory(String categoryId, String username) {
+        log.debug("deleteCategory: user: {}, will try to delete a category with id: {}", username, categoryId);
+        CategoryEntity entity = categoryRepository.findById(UUID.fromString(categoryId))
+                .orElseThrow(() -> new NotFoundException("No Category found with id: " + categoryId));
+        categoryRepository.flagAsDeleted(UUID.fromString(categoryId), username, LocalDateTime.now());
+        log.debug("deleteCategory: deleted category with id: {}", categoryId);
+    }
+
     private CategoryEntity getCategory(String categoryName) {
         return categoryRepository.findByName(categoryName)
                 .orElseThrow(() -> new NotFoundException("No category found of name: " + categoryName));
     }
 
-    @Transactional
-    @Override
-    public Mono<Void> deleteCategory(String categoryId) {
-        return Mono.fromRunnable(() -> internalDeleteCategory(categoryId)).subscribeOn(jdbcScheduler).then();
-    }
-
-    private void internalDeleteCategory(String categoryId) {
-        log.debug("deleteCategory: will try to delete a category with id: {}", categoryId);
-        CategoryEntity entity = categoryRepository.findById(UUID.fromString(categoryId))
-                .orElseThrow(() -> new NotFoundException("No Category found with id: " + categoryId));
-        categoryRepository.flagAsDeleted(UUID.fromString(categoryId), entity.getCreatedBy(), LocalDateTime.now());
-        log.debug("deleteCategory: deleted category with id: {}", categoryId);
-    }
-
     private Category setServiceAddress(Category e) {
         e.setServiceAddress(serviceUtil.getServiceAddress());
         return e;
+    }
+
+    private Mono<String> getUsernameFromToken() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> (Jwt) ctx.getAuthentication().getPrincipal())
+                .map(jwt -> jwt.getClaimAsString("preferred_username"));
     }
 }

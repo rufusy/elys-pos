@@ -1,6 +1,8 @@
 package com.elys.pos.inventory.v1.controller;
 
-import com.elys.pos.inventory.v1.api.model.Item;
+import com.elys.pos.inventory.v1.api.model.item.CreateItem;
+import com.elys.pos.inventory.v1.api.model.item.Item;
+import com.elys.pos.inventory.v1.api.model.item.UpdateItem;
 import com.elys.pos.inventory.v1.api.resource.ItemResource;
 import com.elys.pos.inventory.v1.entity.ItemEntity;
 import com.elys.pos.inventory.v1.filter.ItemFilterOptions;
@@ -81,12 +83,12 @@ public class ItemController implements ItemResource {
     }
 
     @Override
-    public ResponseEntity<Mono<Item>> createItem(Item item) {
+    public ResponseEntity<Mono<Item>> createItem(CreateItem item) {
         return ResponseEntity.status(OK).body(itemService.createItem(item));
     }
 
     @Override
-    public ResponseEntity<Mono<Item>> updateItem(Item item) {
+    public ResponseEntity<Mono<Item>> updateItem(UpdateItem item) {
         return ResponseEntity.status(OK).body(itemService.updateItem(item));
     }
 

@@ -1,6 +1,8 @@
 package com.elys.pos.inventory.v1.controller;
 
-import com.elys.pos.inventory.v1.api.model.Category;
+import com.elys.pos.inventory.v1.api.model.category.Category;
+import com.elys.pos.inventory.v1.api.model.category.CreateCategory;
+import com.elys.pos.inventory.v1.api.model.category.UpdateCategory;
 import com.elys.pos.inventory.v1.api.resource.CategoryResource;
 import com.elys.pos.inventory.v1.entity.CategoryEntity;
 import com.elys.pos.inventory.v1.filter.CategoryFilterOptions;
@@ -83,12 +85,12 @@ public class CategoryController implements CategoryResource {
     }
 
     @Override
-    public ResponseEntity<Mono<Category>> createCategory(Category body) {
+    public ResponseEntity<Mono<Category>> createCategory(CreateCategory body) {
         return ResponseEntity.status(CREATED).body(categoryService.createCategory(body));
     }
 
     @Override
-    public ResponseEntity<Mono<Category>> updateCategory(Category body) {
+    public ResponseEntity<Mono<Category>> updateCategory(UpdateCategory body) {
         return ResponseEntity.status(OK).body(categoryService.updateCategory(body));
     }
 

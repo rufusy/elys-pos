@@ -1,4 +1,4 @@
-package com.elys.pos.inventory.v1.api.model;
+package com.elys.pos.inventory.v1.api.model.item;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -6,9 +6,15 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
-public class Item {
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class UpdateItem {
 
+    @NotNull(message = "Id cannot be null")
+    @NotBlank(message = "Id cannot be empty")
     @org.hibernate.validator.constraints.UUID(message = "Invalid format for item id")
     private String id;
 
@@ -20,9 +26,6 @@ public class Item {
     @NotNull(message = "Description cannot be null")
     @NotBlank(message = "Description cannot be empty")
     private String description;
-
-    @Size(max = 255, message = "Item number must be less than 255 characters")
-    private String itemNumber;
 
     @Size(max = 255, message = "Image url must be less than 255 characters")
     private String imageUrl;
@@ -49,53 +52,45 @@ public class Item {
     @NotNull(message = "Batch tracked cannot be null")
     private boolean batchTracked;
 
-    @org.hibernate.validator.constraints.UUID(message = "Invalid format for created by id")
-    private String createdBy;
-
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date format for created at. Expected format is YYYY-MM-DD")
-    private String createdAt;
-
-    @org.hibernate.validator.constraints.UUID(message = "Invalid format for updated by id")
-    private String updatedBy;
-
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date format for updated at. Expected format is YYYY-MM-DD")
-    private String updatedAt;
-
-    private boolean deleted;
-
-    @org.hibernate.validator.constraints.UUID(message = "Invalid format for deleted by id")
-    private String deletedBy;
-
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date format for deleted at. Expected format is YYYY-MM-DD")
-    private String deletedAt;
-
-    private String serviceAddress;
-
     @Valid
     @NotNull(message = "Category cannot be null")
-    private Category category;
+    private Item.Category category;
+
     @Valid
     @NotNull(message = "Item type cannot be null")
-    private ItemType itemType;
+    private Item.ItemType itemType;
+
     @Valid
     @NotNull(message = "Stock type cannot be null")
-    private StockType stockType;
+    private Item.StockType stockType;
 
-    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Category {
         @NotNull(message = "Category name cannot be null")
         @NotBlank(message = "Category name cannot be empty")
         private String name;
     }
 
-    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ItemType {
         @NotNull(message = "Item type name cannot be null")
         @NotBlank(message = "Item type name cannot be empty")
         private String name;
     }
 
-    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class StockType {
         @NotNull(message = "Stock type name cannot be null")
         @NotBlank(message = "Stock type name cannot be empty")

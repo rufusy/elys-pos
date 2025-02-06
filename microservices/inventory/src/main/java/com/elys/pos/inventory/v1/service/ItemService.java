@@ -1,6 +1,8 @@
 package com.elys.pos.inventory.v1.service;
 
-import com.elys.pos.inventory.v1.api.model.Item;
+import com.elys.pos.inventory.v1.api.model.item.Item;
+import com.elys.pos.inventory.v1.api.model.item.CreateItem;
+import com.elys.pos.inventory.v1.api.model.item.UpdateItem;
 import com.elys.pos.inventory.v1.entity.ItemEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,9 +14,9 @@ public interface ItemService {
 
     Mono<Item> getItemById(String itemId);
 
-    Mono<Item> createItem(Item item);
+    Mono<Item> createItem(CreateItem item);
 
-    Mono<Item> updateItem(Item item);
+    Mono<Item> updateItem(UpdateItem item);
 
     Mono<Void> deleteItem(String itemId);
 }

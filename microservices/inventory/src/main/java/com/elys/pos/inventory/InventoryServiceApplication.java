@@ -61,33 +61,33 @@ public class InventoryServiceApplication {
                                                ItemTypeRepository itemTypeRepository, StockTypeRepository stockTypeRepository) {
         return args -> {
 
-            UUID user1Id = UUID.randomUUID();
+            String testUser1 = "test_user1";
 
             CategoryEntity category1 = categoryRepository.save(CategoryEntity.builder().name("cat1").description("d1")
-                    .createdBy(user1Id).createdAt(LocalDateTime.now()).build());
+                    .createdBy(testUser1).createdAt(LocalDateTime.now()).build());
             CategoryEntity category2 = categoryRepository.save(CategoryEntity.builder().name("cat2").description("d1")
-                    .createdBy(user1Id).createdAt(LocalDateTime.now()).build());
+                    .createdBy(testUser1).createdAt(LocalDateTime.now()).build());
 
             ItemTypeEntity itemType1 = itemTypeRepository.save(ItemTypeEntity.builder().name("Standard")
-                    .createdAt(LocalDateTime.now()).createdBy(user1Id).build());
+                    .createdAt(LocalDateTime.now()).createdBy(testUser1).build());
             ItemTypeEntity itemType2 = itemTypeRepository.save(ItemTypeEntity.builder().name("Kit")
-                    .createdAt(LocalDateTime.now()).createdBy(user1Id).build());
+                    .createdAt(LocalDateTime.now()).createdBy(testUser1).build());
 
             StockTypeEntity stockType1 = stockTypeRepository.save(StockTypeEntity.builder().name("Stocked")
-                    .createdAt(LocalDateTime.now()).createdBy(user1Id).build());
+                    .createdAt(LocalDateTime.now()).createdBy(testUser1).build());
             StockTypeEntity stockType2 = stockTypeRepository.save(StockTypeEntity.builder().name("Non Stocked")
-                    .createdAt(LocalDateTime.now()).createdBy(user1Id).build());
+                    .createdAt(LocalDateTime.now()).createdBy(testUser1).build());
 
             ItemEntity item1 = itemRepository.save(ItemEntity.builder().name("item1").category(category1).description("d1")
                     .sellingPrice(new BigDecimal("10.00")).hsnCode("96031000").itemNumber("123456").itemType(itemType1)
                     .stockType(stockType1).serialized(false).batchTracked(false).createdAt(LocalDateTime.now())
-                    .createdBy(UUID.randomUUID()).imageUrl("image_url_1").supplierId(UUID.randomUUID())
+                    .createdBy(testUser1).imageUrl("image_url_1").supplierId(UUID.randomUUID())
                     .taxCategoryId(UUID.randomUUID()).build());
 
             ItemEntity item2 = itemRepository.save(ItemEntity.builder().name("item2").category(category2).description("d1")
                     .sellingPrice(new BigDecimal("1000.00")).hsnCode("68101990").itemNumber("654321").itemType(itemType2)
                     .stockType(stockType2).serialized(true).batchTracked(true).createdAt(LocalDateTime.now())
-                    .createdBy(UUID.randomUUID()).imageUrl("image_url_2").supplierId(UUID.randomUUID())
+                    .createdBy(testUser1).imageUrl("image_url_2").supplierId(UUID.randomUUID())
                     .taxCategoryId(UUID.randomUUID()).build());
 
             List<ItemEntity> itemEntityList = new ArrayList<>();
@@ -96,7 +96,7 @@ public class InventoryServiceApplication {
                         ItemEntity.builder().name("item" + i + 3).category(category2).description("d1")
                                 .sellingPrice(new BigDecimal("1000.00")).hsnCode("68101990").itemNumber("654321" + i + 3).itemType(itemType2)
                                 .stockType(stockType2).serialized(true).batchTracked(true).createdAt(LocalDateTime.now())
-                                .createdBy(UUID.randomUUID()).imageUrl("image_url_2").supplierId(UUID.randomUUID())
+                                .createdBy(testUser1).imageUrl("image_url_2").supplierId(UUID.randomUUID())
                                 .taxCategoryId(UUID.randomUUID()).build()
                 );
             }

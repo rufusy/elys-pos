@@ -20,5 +20,5 @@ public interface ItemRepository extends JpaRepository<ItemEntity, UUID>, PagingA
     @Modifying
     @Transactional
     @Query("UPDATE ItemEntity e SET e.deleted = true, e.deletedBy = :deletedBy, e.deletedAt = :deletedAt WHERE e.id = :id")
-    void flagAsDeleted(@Param("id") UUID id, @Param("deletedBy") UUID deletedBy, @Param("deletedAt") LocalDateTime deletedAt);
+    void flagAsDeleted(@Param("id") UUID id, @Param("deletedBy") String deletedBy, @Param("deletedAt") LocalDateTime deletedAt);
 }
